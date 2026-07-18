@@ -698,25 +698,20 @@
           <div class="authCopy">
             <span class="label">Week 1 テスト公開中</span>
             <h1>9周年<br>チャレンジ</h1>
-            <p>ニックネームで参加できます。ランキングには個人が特定されない名前だけ表示されます。</p>
+            <p>ニックネームだけで参加できます。ランキングには個人が特定されない名前だけ表示されます。</p>
             <div class="motionLine"></div>
           </div>
 
           <form class="authCard" id="loginForm">
-            <div class="pinRow">
-              <label>
-                お名前
-                <input name="fullName" autocomplete="name" maxlength="30" placeholder="例：山田 太郎" required>
-              </label>
-              <label>
-                ニックネーム
-                <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
-              </label>
-            </div>
+            <label>
+              ニックネーム
+              <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
+              <span class="fieldHint">本名ではなく、個人が特定されにくい名前で参加してください。</span>
+            </label>
             <label>
               4桁パスワード
               <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
-              <span class="fieldHint">次回ログイン時にも同じニックネームと4桁パスワードを使います。</span>
+              <span class="fieldHint">次回以降も同じニックネームと4桁パスワードで入れます。</span>
             </label>
             <button class="primaryButton" type="submit">ログインして記録へ進む</button>
             <div class="message" id="authMessage"></div>
@@ -946,8 +941,8 @@
       render();
     }
 
-    async function login(fullName, nickname, pin) {
-      const data = await api({ action: "login", fullName, nickname, pin });
+    async function login(nickname, pin) {
+      const data = await api({ action: "login", nickname, pin });
       if (!data.ok) return data;
       state.session = data.session;
       localStorage.setItem("joyfitSession", JSON.stringify(state.session));
@@ -990,7 +985,6 @@
       const form = new FormData(event.currentTarget);
       try {
         const data = await login(
-          String(form.get("fullName") || "").trim(),
           String(form.get("nickname") || "").trim(),
           String(form.get("pin") || "").trim()
         );

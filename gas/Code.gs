@@ -20,7 +20,7 @@ function doGet(e) {
   try {
     if (action === 'health') return jsonResponse({ ok: true, message: 'ok' }, e);
     if (action === 'setup') return jsonResponse(setupSheets(), e);
-    if (action === 'login') return jsonResponse(login(e.parameter.fullName, e.parameter.nickname, e.parameter.pin), e);
+    if (action === 'login') return jsonResponse(login(e.parameter.nickname, e.parameter.pin), e);
     if (action === 'submit') {
       const body = JSON.parse(String(e.parameter.payload || '{}'));
       return jsonResponse(appendRecord(e.parameter.token, body, e), e);
@@ -45,25 +45,22 @@ function setupSheets() {
   const participants = getSheet(PARTICIPANTS_SHEET);
   if (participants.getLastRow() < 2) {
     const now = new Date().toISOString();
-    participants.appendRow([Utilities.getUuid(), 'テスト太郎', 'タロウ', '1234', 'member', true, 'サンプル会員', now, now]);
-    participants.appendRow([Utilities.getUuid(), 'スタッフ', 'STAFF', '9999', 'staff', true, 'スタッフ確認用', now, now]);
+    participants.appendRow([Utilities.getUuid(), '', 'タロウ', '1234', 'member', true, 'サンプル会員', now, now]);
+    participants.appendRow([Utilities.getUuid(), '', 'STAFF', '9999', 'staff', true, 'スタッフ確認用', now, now]);
   }
   return { ok: true, message: 'シートを準備しました。participantsに参加者が自動登録されます。' };
 }
 
-function login(fullName, nickname, pin) {
-  const cleanFullName = cleanText(fullName, 30);
+function login(nickname, pin) {
   const cleanNickname = cleanText(nickname, 16);
   const cleanPin = String(pin || '').trim();
-  if (!cleanFullName) return { ok: false, message: 'お名前を入力してください。' };
   if (!cleanNickname) return { ok: false, message: 'ニックネームを入力してください。' };
   if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: '4桁パスワードを入力してください。' };
 
   let participant = findParticipantByNickname(cleanNickname);
-  if (!participant) participant = createParticipant(cleanFullName, cleanNickname, cleanPin);
+  if (!participant) participant = createParticipant(cleanNickname, cleanPin);
   if (!participant.active) return { ok: false, message: 'このアカウントは停止されています。' };
   if (String(participant.pin) !== String(pin)) return { ok: false, message: 'PINが違います。' };
-  updateParticipantName(participant.participantId, cleanFullName);
 
   const token = Utilities.getUuid() + Utilities.getUuid();
   const now = new Date();
@@ -74,7 +71,6 @@ function login(fullName, nickname, pin) {
     session: {
       token,
       participantId: participant.participantId,
-      fullName: cleanFullName,
       nickname: participant.nickname,
       division: participant.division,
       expiresAt: expires.toISOString(),
@@ -171,32 +167,17 @@ function findParticipantByNickname(nickname) {
   return getParticipants().find(p => p.nickname.toLowerCase() === key);
 }
 
-function createParticipant(fullName, nickname, pin) {
+function createParticipant(nickname, pin) {
   const now = new Date().toISOString();
   const participant = {
     participantId: Utilities.getUuid(),
-    fullName,
     nickname,
     pin,
     division: 'member',
     active: true,
   };
-  getSheet(PARTICIPANTS_SHEET).appendRow([participant.participantId, fullName, nickname, pin, 'member', true, '自動登録', now, now]);
+  getSheet(PARTICIPANTS_SHEET).appendRow([participant.participantId, '', nickname, pin, 'member', true, '自動登録', now, now]);
   return participant;
-}
-
-function updateParticipantName(participantId, fullName) {
-  const sheet = getSheet(PARTICIPANTS_SHEET);
-  const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return;
-  const rows = sheet.getRange(2, 1, lastRow - 1, PARTICIPANT_HEADERS.length).getValues();
-  for (let i = 0; i < rows.length; i += 1) {
-    if (String(rows[i][0]) === participantId) {
-      sheet.getRange(i + 2, 2).setValue(fullName);
-      sheet.getRange(i + 2, 9).setValue(new Date().toISOString());
-      return;
-    }
-  }
 }
 
 function findSession(token) {
