@@ -8,14 +8,14 @@
 
 ## 運用イメージ
 
-1. 店舗側で `participants` シートに参加者を登録します。
-2. 参加者はQRからページを開き、参加者IDと4桁PINでログインします。
+1. 参加者はQRからページを開き、名前、ニックネーム、4桁パスワードでログインします。
+2. 初回ログイン時に `participants` シートへ自動登録されます。
 3. ログイン後、今週の種目の記録だけ入力して送信します。
 4. 送信データは `records` シートに入り、ランキングに反映されます。
 
 ## 画面の使い方
 
-1. 「記録を送信」で参加者IDと4桁PINを入力します。
+1. 「記録を送信」で名前、ニックネーム、4桁パスワードを入力します。
 2. ログイン後、記録を入力して送信します。
 3. 「ランキング」で今週TOP10と過去WeekのTOP10を確認できます。
 
@@ -26,7 +26,7 @@
 3. `Code.gs` の中身を貼り付けて保存します。
 4. エディタ上部の関数選択で `setupSheets` を選んで実行します。
 5. 初回だけGoogleの権限許可を行います。
-6. `participants` シートに参加者を登録します。
+6. `participants` シートにサンプル参加者が作成されます。通常は参加者の初回ログインで自動追加されます。
 7. `デプロイ > 新しいデプロイ > ウェブアプリ` を選びます。
 8. 実行ユーザーは「自分」、アクセス権は運用方針に合わせて「全員」または「リンクを知っている全員」にします。
 9. 発行されたウェブアプリURLを `index.html` の `CONFIG.gasEndpoint` に貼り付けます。
@@ -43,15 +43,21 @@ const CONFIG = {
 
 ## participants シート
 
-店舗側で管理するログイン用シートです。
+店舗側で確認できる参加者管理シートです。
 
-`participantId`, `displayName`, `pin`, `division`, `active`, `memo`, `createdAt`
+`participantId`, `fullName`, `nickname`, `pin`, `division`, `active`, `memo`, `createdAt`, `updatedAt`
 
-- `participantId`: 参加者IDです。例: `0001`
-- `displayName`: ランキング表示名です。例: `T.K`
-- `pin`: 4桁PINです。例: `1234`
+- `participantId`: 自動発行される内部IDです。
+- `fullName`: 店舗管理用の名前です。ランキングには出ません。
+- `nickname`: ランキング表示名です。個人が特定されない名前を案内してください。
+- `pin`: 4桁パスワードです。例: `1234`
 - `division`: `member` または `staff`
 - `active`: `TRUE` ならログイン可能
+
+## テストWeek
+
+現在は本番前確認のため、`index.html` の `testWeekOverride` と `Code.gs` の `TEST_WEEK_OVERRIDE` を `1` にしています。
+イベント開始後に日付で自動切替したい場合は、どちらも空または `0` に変更してください。
 
 ## records シート
 

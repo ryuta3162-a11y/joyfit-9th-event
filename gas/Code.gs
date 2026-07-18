@@ -2,6 +2,7 @@ const SPREADSHEET_ID = '1hQKe60-qL4NlEzA_bWEXt9M9kv8JURaGDRP4IhDBMEY';
 const PARTICIPANTS_SHEET = 'participants';
 const RECORDS_SHEET = 'records';
 const SESSIONS_SHEET = 'sessions';
+const TEST_WEEK_OVERRIDE = 1;
 
 const EVENT_WEEKS = [
   { week: 1, event: '握力測定', unit: 'kg', start: '2026-08-03', end: '2026-08-09', higherIsBetter: true },
@@ -10,7 +11,7 @@ const EVENT_WEEKS = [
   { week: 4, event: '腕立て伏せ', unit: '回', start: '2026-08-24', end: '2026-08-30', higherIsBetter: true },
 ];
 
-const PARTICIPANT_HEADERS = ['participantId', 'displayName', 'pin', 'division', 'active', 'memo', 'createdAt'];
+const PARTICIPANT_HEADERS = ['participantId', 'fullName', 'nickname', 'pin', 'division', 'active', 'memo', 'createdAt', 'updatedAt'];
 const RECORD_HEADERS = ['id', 'createdAt', 'dateKey', 'participantId', 'displayName', 'week', 'event', 'score', 'unit', 'division', 'inputBy', 'userAgent'];
 const SESSION_HEADERS = ['token', 'participantId', 'createdAt', 'expiresAt'];
 
@@ -19,7 +20,7 @@ function doGet(e) {
   try {
     if (action === 'health') return jsonResponse({ ok: true, message: 'ok' }, e);
     if (action === 'setup') return jsonResponse(setupSheets(), e);
-    if (action === 'login') return jsonResponse(login(e.parameter.participantId, e.parameter.pin), e);
+    if (action === 'login') return jsonResponse(login(e.parameter.fullName, e.parameter.nickname, e.parameter.pin), e);
     if (action === 'submit') {
       const body = JSON.parse(String(e.parameter.payload || '{}'));
       return jsonResponse(appendRecord(e.parameter.token, body, e), e);
@@ -43,16 +44,27 @@ function setupSheets() {
   ensureSheet(SESSIONS_SHEET, SESSION_HEADERS);
   const participants = getSheet(PARTICIPANTS_SHEET);
   if (participants.getLastRow() < 2) {
-    participants.appendRow(['0001', 'T.K', '1234', 'member', true, 'サンプル会員', new Date().toISOString()]);
-    participants.appendRow(['staff01', 'STAFF', '9999', 'staff', true, 'スタッフ確認用', new Date().toISOString()]);
+    const now = new Date().toISOString();
+    participants.appendRow([Utilities.getUuid(), 'テスト太郎', 'タロウ', '1234', 'member', true, 'サンプル会員', now, now]);
+    participants.appendRow([Utilities.getUuid(), 'スタッフ', 'STAFF', '9999', 'staff', true, 'スタッフ確認用', now, now]);
   }
-  return { ok: true, message: 'シートを準備しました。participantsに参加者を追加してください。' };
+  return { ok: true, message: 'シートを準備しました。participantsに参加者が自動登録されます。' };
 }
 
-function login(participantId, pin) {
-  const participant = findParticipant(participantId);
-  if (!participant || !participant.active) return { ok: false, message: '参加者IDを確認してください。' };
+function login(fullName, nickname, pin) {
+  const cleanFullName = cleanText(fullName, 30);
+  const cleanNickname = cleanText(nickname, 16);
+  const cleanPin = String(pin || '').trim();
+  if (!cleanFullName) return { ok: false, message: 'お名前を入力してください。' };
+  if (!cleanNickname) return { ok: false, message: 'ニックネームを入力してください。' };
+  if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: '4桁パスワードを入力してください。' };
+
+  let participant = findParticipantByNickname(cleanNickname);
+  if (!participant) participant = createParticipant(cleanFullName, cleanNickname, cleanPin);
+  if (!participant.active) return { ok: false, message: 'このアカウントは停止されています。' };
   if (String(participant.pin) !== String(pin)) return { ok: false, message: 'PINが違います。' };
+  updateParticipantName(participant.participantId, cleanFullName);
+
   const token = Utilities.getUuid() + Utilities.getUuid();
   const now = new Date();
   const expires = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30);
@@ -62,7 +74,8 @@ function login(participantId, pin) {
     session: {
       token,
       participantId: participant.participantId,
-      displayName: participant.displayName,
+      fullName: cleanFullName,
+      nickname: participant.nickname,
       division: participant.division,
       expiresAt: expires.toISOString(),
     },
@@ -96,7 +109,7 @@ function appendRecord(token, body, eventObject) {
       now.toISOString(),
       dateKey,
       participant.participantId,
-      participant.displayName,
+      participant.nickname,
       week.week,
       week.event,
       score,
@@ -140,7 +153,8 @@ function getParticipants() {
   const rows = readRows(getSheet(PARTICIPANTS_SHEET), PARTICIPANT_HEADERS);
   return rows.map(r => ({
     participantId: String(r.participantId || '').trim(),
-    displayName: String(r.displayName || '').trim(),
+    fullName: String(r.fullName || '').trim(),
+    nickname: String(r.nickname || '').trim(),
     pin: String(r.pin || '').trim(),
     division: r.division === 'staff' ? 'staff' : 'member',
     active: r.active === true || String(r.active).toUpperCase() === 'TRUE' || String(r.active) === '1',
@@ -150,6 +164,39 @@ function getParticipants() {
 function findParticipant(participantId) {
   const id = String(participantId || '').trim();
   return getParticipants().find(p => p.participantId === id);
+}
+
+function findParticipantByNickname(nickname) {
+  const key = cleanText(nickname, 16).toLowerCase();
+  return getParticipants().find(p => p.nickname.toLowerCase() === key);
+}
+
+function createParticipant(fullName, nickname, pin) {
+  const now = new Date().toISOString();
+  const participant = {
+    participantId: Utilities.getUuid(),
+    fullName,
+    nickname,
+    pin,
+    division: 'member',
+    active: true,
+  };
+  getSheet(PARTICIPANTS_SHEET).appendRow([participant.participantId, fullName, nickname, pin, 'member', true, '自動登録', now, now]);
+  return participant;
+}
+
+function updateParticipantName(participantId, fullName) {
+  const sheet = getSheet(PARTICIPANTS_SHEET);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+  const rows = sheet.getRange(2, 1, lastRow - 1, PARTICIPANT_HEADERS.length).getValues();
+  for (let i = 0; i < rows.length; i += 1) {
+    if (String(rows[i][0]) === participantId) {
+      sheet.getRange(i + 2, 2).setValue(fullName);
+      sheet.getRange(i + 2, 9).setValue(new Date().toISOString());
+      return;
+    }
+  }
 }
 
 function findSession(token) {
@@ -239,6 +286,9 @@ function buildRanking(records, week) {
 }
 
 function getCurrentWeek() {
+  if (TEST_WEEK_OVERRIDE) {
+    return EVENT_WEEKS.find(week => week.week === TEST_WEEK_OVERRIDE) || EVENT_WEEKS[0];
+  }
   const now = new Date();
   const active = EVENT_WEEKS.find(week => {
     const start = new Date(`${week.start}T00:00:00+09:00`);
@@ -260,4 +310,8 @@ function jsonResponse(payload, e) {
 function cleanCallbackName(value) {
   const callback = String(value || '');
   return /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(callback) ? callback : '';
+}
+
+function cleanText(value, maxLength) {
+  return String(value || '').trim().replace(/[<>]/g, '').slice(0, maxLength);
 }

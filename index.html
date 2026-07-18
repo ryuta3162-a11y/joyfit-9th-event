@@ -6,280 +6,507 @@
   <title>JOYFIT24 9周年チャレンジ</title>
   <style>
     :root {
-      --red: #d70f16;
-      --deep: #79060a;
-      --black: #101010;
-      --ink: #222;
-      --gold: #f7c948;
-      --paper: #fffaf5;
-      --line: #ead8d8;
-      --soft: #fff1ef;
+      --red: #d71920;
+      --red-dark: #8f080e;
+      --red-soft: #fff0ef;
+      --black: #111111;
+      --ink: #252120;
+      --muted: #786d68;
+      --line: #e7d9d4;
+      --paper: #fffaf6;
+      --white: #ffffff;
+      --gold: #e8b62d;
+      --gold-soft: #fff6d9;
+      --green: #0c7a61;
+      --shadow: 0 18px 44px rgba(75, 18, 14, .16);
       font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
     }
+
     * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: #160303;
+    }
+
     body {
+      min-height: 100%;
       margin: 0;
       color: var(--ink);
-      background: linear-gradient(180deg, #fff, #f3e4df);
+      background:
+        linear-gradient(135deg, rgba(215, 25, 32, .10) 0 11px, transparent 11px 22px),
+        radial-gradient(circle at 12% 0%, rgba(232, 182, 45, .22), transparent 280px),
+        linear-gradient(180deg, #fffdfb 0%, #f8ebe6 48%, #ead8d2 100%);
       letter-spacing: 0;
     }
+
+    button,
+    input,
+    select {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    button { cursor: pointer; }
+
     .app {
-      width: min(100%, 460px);
+      width: min(100%, 480px);
       min-height: 100vh;
       margin: 0 auto;
       background: var(--paper);
-      box-shadow: 0 0 42px rgba(70, 10, 10, .18);
+      box-shadow: 0 0 60px rgba(30, 0, 0, .22);
     }
-    .hero {
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .authHero {
       position: relative;
-      min-height: 360px;
-      color: #fff;
+      min-height: 100vh;
+      padding: 28px 18px 24px;
       overflow: hidden;
-      background: var(--black);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.08) 0 8px, transparent 8px 16px),
+        linear-gradient(180deg, #2a0305 0%, #90070d 48%, #180203 100%);
+      color: #fff;
     }
-    .hero img {
-      width: 100%;
-      height: 360px;
-      object-fit: cover;
-      object-position: center top;
-      display: block;
-    }
-    .hero::after {
+
+    .authHero::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(112,0,5,.9));
+      background:
+        linear-gradient(160deg, transparent 0 42%, rgba(255,255,255,.12) 42% 43%, transparent 43% 100%),
+        linear-gradient(20deg, transparent 0 55%, rgba(255,255,255,.08) 55% 56%, transparent 56% 100%),
+        linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.34));
     }
-    .heroText {
+
+    .authHero::after {
+      content: "9";
       position: absolute;
-      left: 18px;
-      right: 18px;
-      bottom: 18px;
-      z-index: 1;
-      text-shadow: 0 4px 14px rgba(0,0,0,.6);
-    }
-    .kicker {
-      display: inline-flex;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.94);
-      color: var(--deep);
-      font-size: 12px;
-      font-weight: 900;
-    }
-    h1 {
-      margin: 10px 0 7px;
-      font-size: clamp(34px, 11vw, 50px);
-      line-height: .92;
+      right: -18px;
+      top: 64px;
+      color: rgba(255,255,255,.09);
+      font-size: 220px;
+      line-height: .75;
       font-weight: 1000;
+      pointer-events: none;
     }
-    .hero p {
-      margin: 0;
-      font-size: 14px;
-      font-weight: 900;
-      line-height: 1.45;
-    }
-    .section { padding: 18px; }
-    .weekPanel {
-      margin-top: -8px;
+
+    .authInner {
       position: relative;
-      z-index: 2;
-      overflow: hidden;
-      background: #fff;
-      border: 3px solid var(--red);
+      z-index: 1;
+      display: grid;
+      align-content: end;
+      min-height: calc(100vh - 52px);
+      gap: 16px;
+    }
+
+    .brandMark {
+      display: inline-grid;
+      gap: 5px;
+      align-self: start;
+      width: fit-content;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.12);
       border-radius: 8px;
-      box-shadow: 0 12px 26px rgba(126, 13, 13, .18);
+      backdrop-filter: blur(10px);
     }
-    .weekHead {
-      display: grid;
-      grid-template-columns: 76px 1fr;
-      background: var(--red);
-      color: #fff;
-    }
-    .weekNo {
-      display: grid;
-      place-items: center;
-      min-height: 74px;
-      background: var(--black);
-      font-size: 34px;
+
+    .brandMark b {
+      font-size: 16px;
       font-weight: 1000;
-    }
-    .weekInfo { padding: 12px 14px; }
-    .weekInfo strong {
-      display: block;
-      font-size: 24px;
-      line-height: 1.05;
-      font-weight: 1000;
-    }
-    .weekInfo span {
-      display: block;
-      margin-top: 5px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .stat {
-      padding: 10px 8px 12px;
-      text-align: center;
-      border-right: 1px solid var(--line);
-    }
-    .stat:last-child { border-right: 0; }
-    .stat b {
-      display: block;
-      color: var(--red);
-      font-size: 24px;
       line-height: 1;
-      font-weight: 1000;
     }
-    .stat small {
-      display: block;
-      margin-top: 5px;
+
+    .brandMark small {
+      color: rgba(255,255,255,.78);
       font-size: 10px;
       font-weight: 900;
     }
+
+    .authCopy {
+      padding-top: 96px;
+      text-shadow: 0 5px 18px rgba(0,0,0,.5);
+    }
+
+    .authCopy .label,
+    .topLabel {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      color: var(--red-dark);
+      font-size: 12px;
+      font-weight: 1000;
+      text-shadow: none;
+    }
+
+    .authCopy h1 {
+      margin: 12px 0 9px;
+      font-size: clamp(36px, 11vw, 54px);
+      line-height: .95;
+      font-weight: 1000;
+    }
+
+    .authCopy p {
+      width: min(100%, 340px);
+      margin: 0;
+      color: rgba(255,255,255,.9);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 800;
+    }
+
+    .authCard,
+    .surface {
+      background: rgba(255,255,255,.96);
+      color: var(--ink);
+      border: 1px solid rgba(255,255,255,.52);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .authCard {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .formGrid {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 52px;
+      padding: 10px 12px;
+      border: 2px solid #2a2523;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 900;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(215, 25, 32, .13);
+    }
+
+    .fieldHint {
+      margin-top: -2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .pinRow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .primaryButton,
+    .secondaryButton,
+    .quietButton {
+      width: 100%;
+      min-height: 54px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+
+    .primaryButton {
+      border: 0;
+      color: #fff;
+      background: linear-gradient(180deg, #f0222a, #aa080e);
+      box-shadow: 0 7px 0 #6c0307;
+    }
+
+    .primaryButton:active {
+      transform: translateY(3px);
+      box-shadow: 0 4px 0 #6c0307;
+    }
+
+    .secondaryButton {
+      border: 2px solid var(--red);
+      color: var(--red);
+      background: #fff;
+    }
+
+    .quietButton {
+      border: 2px solid var(--line);
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .message {
+      display: none;
+      padding: 12px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.55;
+    }
+
+    .message.show { display: block; }
+    .message.ok {
+      color: var(--green);
+      background: #e8fff5;
+      border: 2px solid #8bdcc3;
+    }
+    .message.err {
+      color: var(--red-dark);
+      background: #fff0f0;
+      border: 2px solid #f0a4a4;
+    }
+
+    .shellHeader {
+      padding: 16px 16px 14px;
+      color: #fff;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.13) 0 8px, transparent 8px 16px),
+        linear-gradient(180deg, #d71920, #7b050a);
+    }
+
+    .headerTop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .headerTitle {
+      min-width: 0;
+    }
+
+    .headerTitle small {
+      display: block;
+      color: rgba(255,255,255,.78);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .headerTitle b {
+      display: block;
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 1000;
+    }
+
+    .logout {
+      flex: none;
+      min-height: 38px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .weekHero {
+      margin-top: 16px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 14px 30px rgba(45, 0, 0, .22);
+    }
+
+    .weekHeroTop {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      background: #fff;
+    }
+
+    .weekNo {
+      display: grid;
+      place-items: center;
+      min-height: 82px;
+      color: #fff;
+      background: #111;
+      font-size: 34px;
+      font-weight: 1000;
+    }
+
+    .weekInfo {
+      display: grid;
+      align-content: center;
+      padding: 12px 14px;
+    }
+
+    .weekInfo span {
+      color: var(--red-dark);
+      font-size: 11px;
+      font-weight: 1000;
+    }
+
+    .weekInfo strong {
+      margin-top: 3px;
+      font-size: 26px;
+      line-height: 1.05;
+      font-weight: 1000;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+    }
+
+    .stat {
+      padding: 11px 8px 12px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+
+    .stat:last-child { border-right: 0; }
+
+    .stat b {
+      display: block;
+      color: var(--red);
+      font-size: 23px;
+      line-height: 1;
+      font-weight: 1000;
+    }
+
+    .stat small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      padding: 0 18px 10px;
+      padding: 14px 16px 0;
+      background: var(--paper);
     }
-    button {
-      font-family: inherit;
-      letter-spacing: 0;
-      cursor: pointer;
-    }
+
     .tabButton {
+      min-height: 44px;
       border: 2px solid var(--red);
+      border-radius: 8px;
       background: #fff;
       color: var(--red);
-      border-radius: 7px;
-      min-height: 44px;
       font-size: 14px;
-      font-weight: 900;
+      font-weight: 1000;
     }
+
     .tabButton.active {
       color: #fff;
       background: var(--red);
-      box-shadow: 0 6px 0 var(--deep);
-      transform: translateY(-3px);
+      box-shadow: 0 5px 0 var(--red-dark);
+      transform: translateY(-2px);
     }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .box {
-      display: grid;
-      gap: 12px;
-      padding: 14px;
-      background: #fff;
-      border: 2px solid var(--line);
-      border-radius: 8px;
-    }
-    .box.red {
-      border-color: var(--red);
-      background: linear-gradient(180deg, #fff, #fff6f3);
-    }
-    label {
-      display: grid;
-      gap: 7px;
-      font-size: 12px;
-      font-weight: 900;
-    }
-    input, select {
-      width: 100%;
-      min-height: 50px;
-      border: 2px solid #2b2525;
-      border-radius: 7px;
-      padding: 10px 12px;
-      background: #fff;
-      color: var(--ink);
-      font-size: 16px;
-      font-weight: 800;
-    }
-    .inline {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .submit {
-      width: 100%;
-      min-height: 56px;
-      border: 0;
-      border-radius: 8px;
-      background: linear-gradient(180deg, #e01820, #a6080e);
-      color: #fff;
-      font-size: 18px;
-      font-weight: 1000;
-      box-shadow: 0 7px 0 #660307;
-    }
-    .ghost {
-      border: 2px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-      min-height: 44px;
-      border-radius: 7px;
-      font-weight: 900;
-    }
-    .note {
-      margin: 0;
-      padding: 10px 12px;
-      background: var(--soft);
-      border-left: 5px solid var(--red);
-      font-size: 12px;
-      line-height: 1.55;
-      font-weight: 800;
-    }
-    .account {
+
+    .section {
       display: none;
-      margin-bottom: 12px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #111;
-      color: #fff;
+      padding: 16px;
     }
-    .account.show { display: block; }
-    .account b {
-      display: block;
-      font-size: 18px;
-      font-weight: 1000;
+
+    .section.active { display: block; }
+
+    .surface {
+      display: grid;
+      gap: 14px;
+      padding: 15px;
+      background: #fff;
+      border-color: var(--line);
     }
-    .account small {
-      display: block;
-      margin-top: 3px;
-      color: rgba(255,255,255,.78);
-      font-weight: 800;
-    }
-    .message {
-      display: none;
-      margin-top: 12px;
-      padding: 13px 14px;
-      border-radius: 7px;
-      font-weight: 900;
-      line-height: 1.5;
-    }
-    .message.show { display: block; }
-    .message.ok { color: #086b4f; background: #e8fff5; border: 2px solid #82d8bd; }
-    .message.err { color: var(--deep); background: #fff1f1; border: 2px solid #f2a3a3; }
-    .sectionTitle {
+
+    .sectionHead {
       display: flex;
       align-items: end;
       justify-content: space-between;
-      gap: 10px;
-      margin: 0 0 12px;
+      gap: 12px;
     }
-    .sectionTitle h2 {
+
+    .sectionHead h2 {
       margin: 0;
-      font-size: 20px;
+      font-size: 21px;
       line-height: 1.1;
       font-weight: 1000;
     }
-    .sectionTitle span {
+
+    .sectionHead span {
       flex: none;
-      color: var(--deep);
+      color: var(--red-dark);
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 1000;
     }
+
+    .scoreGuide {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf8;
+    }
+
+    .scoreGuide b {
+      display: block;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+
+    .scoreGuide small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .unitBadge {
+      display: grid;
+      place-items: center;
+      min-width: 56px;
+      min-height: 44px;
+      border-radius: 8px;
+      background: var(--black);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 1000;
+    }
+
+    .formSplit {
+      display: grid;
+      grid-template-columns: 1fr 136px;
+      gap: 10px;
+      align-items: end;
+    }
+
     .ranking {
       display: grid;
       gap: 8px;
@@ -287,20 +514,27 @@
       padding: 0;
       list-style: none;
     }
+
     .rankItem {
       display: grid;
       grid-template-columns: 42px 1fr auto;
       align-items: center;
       gap: 10px;
-      min-height: 58px;
-      padding: 8px 10px;
-      background: #fff;
+      min-height: 60px;
+      padding: 9px 10px;
       border: 2px solid var(--line);
-      border-radius: 8px;
+      border-radius: 9px;
+      background: #fff;
     }
-    .rankItem:nth-child(1) { border-color: var(--gold); background: #fff9dd; }
-    .rankItem:nth-child(2) { border-color: #bfc7d2; }
-    .rankItem:nth-child(3) { border-color: #cc8a46; }
+
+    .rankItem:nth-child(1) {
+      border-color: var(--gold);
+      background: var(--gold-soft);
+    }
+
+    .rankItem:nth-child(2) { border-color: #bec8d2; }
+    .rankItem:nth-child(3) { border-color: #c98643; }
+
     .place {
       display: grid;
       place-items: center;
@@ -311,166 +545,267 @@
       color: #fff;
       font-weight: 1000;
     }
+
     .name {
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-size: 15px;
       font-weight: 1000;
     }
+
     .sub {
       display: block;
-      margin-top: 2px;
-      color: #765e5e;
+      margin-top: 3px;
+      color: var(--muted);
       font-size: 11px;
       font-weight: 800;
     }
+
     .score {
       color: var(--red);
       font-size: 18px;
       font-weight: 1000;
       white-space: nowrap;
     }
+
     .weeks {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 7px;
-      margin-bottom: 13px;
     }
+
     .weekChip {
       min-height: 48px;
-      padding: 7px 5px;
+      padding: 7px 4px;
       border: 2px solid var(--line);
-      border-radius: 7px;
+      border-radius: 8px;
       background: #fff;
       color: var(--ink);
       font-size: 11px;
+      line-height: 1.2;
       font-weight: 1000;
     }
+
     .weekChip.active {
-      color: #fff;
       border-color: var(--red);
       background: var(--red);
-    }
-    .footer {
-      padding: 20px 18px 28px;
       color: #fff;
-      background: linear-gradient(180deg, var(--red), #650407);
-      text-align: center;
-      font-weight: 900;
     }
+
+    .miniPoster {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 11px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .miniPoster img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 7px;
+    }
+
+    .miniPoster b {
+      display: block;
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .miniPoster small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .footer {
+      padding: 22px 16px 30px;
+      color: #fff;
+      background: linear-gradient(180deg, #d71920, #650407);
+      text-align: center;
+      font-weight: 1000;
+    }
+
     .footer small {
       display: block;
       margin-top: 6px;
-      color: rgba(255,255,255,.82);
+      color: rgba(255,255,255,.78);
       font-size: 11px;
+      font-weight: 800;
     }
-    @media (max-width: 360px) {
-      .hero, .hero img { min-height: 330px; height: 330px; }
-      .weekHead { grid-template-columns: 66px 1fr; }
-      .weekInfo strong { font-size: 21px; }
-      .inline { grid-template-columns: 1fr; }
+
+    @media (max-width: 380px) {
+      .authHero { padding: 22px 14px 20px; }
+      .authCopy { padding-top: 70px; }
+      .pinRow,
+      .formSplit { grid-template-columns: 1fr; }
+      .weekHeroTop { grid-template-columns: 68px 1fr; }
+      .weekNo { font-size: 30px; }
+      .weekInfo strong { font-size: 22px; }
+      .score { font-size: 16px; }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <section class="hero">
-      <img src="joyfit9-pop.png" alt="JOYFIT24 9周年イベントPOP">
-      <div class="heroText">
-        <span class="kicker">会員ログイン制 ・ 1週間最大3回</span>
-        <h1>9周年<br>チャレンジ</h1>
-        <p>ログインして今週の記録を送信。ランキングはリアルタイムで更新されます。</p>
+    <section class="view active" id="authView">
+      <div class="authHero">
+        <div class="authInner">
+          <div class="brandMark">
+            <b>JOYFIT24 経堂</b>
+            <small>9TH ANNIVERSARY CHALLENGE</small>
+          </div>
+
+          <div class="authCopy">
+            <span class="label">Week 1 テスト公開中</span>
+            <h1>9周年<br>チャレンジ</h1>
+            <p>ニックネームで参加できます。ランキングには個人が特定されない名前だけ表示されます。</p>
+          </div>
+
+          <form class="authCard" id="loginForm">
+            <div class="miniPoster">
+              <img src="joyfit9-pop.png" alt="9周年イベントPOP">
+              <div>
+                <b>8/3(月) START</b>
+                <small>館内イベントの記録登録ページです。</small>
+              </div>
+            </div>
+            <div class="pinRow">
+              <label>
+                お名前
+                <input name="fullName" autocomplete="name" maxlength="30" placeholder="例：山田 太郎" required>
+              </label>
+              <label>
+                ニックネーム
+                <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
+              </label>
+            </div>
+            <label>
+              4桁パスワード
+              <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
+              <span class="fieldHint">次回ログイン時にも同じニックネームと4桁パスワードを使います。</span>
+            </label>
+            <button class="primaryButton" type="submit">ログインして記録へ進む</button>
+            <div class="message" id="authMessage"></div>
+          </form>
+        </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="weekPanel">
-        <div class="weekHead">
-          <div class="weekNo" id="weekNo">W1</div>
-          <div class="weekInfo">
-            <strong id="currentEvent">握力測定</strong>
-            <span id="currentPeriod">8/3(月) - 8/9(日)</span>
+    <section class="view" id="appView">
+      <header class="shellHeader">
+        <div class="headerTop">
+          <div class="headerTitle">
+            <small>9周年チャレンジ</small>
+            <b id="accountName">ゲスト</b>
+          </div>
+          <button class="logout" type="button" id="logoutButton">ログアウト</button>
+        </div>
+
+        <div class="weekHero">
+          <div class="weekHeroTop">
+            <div class="weekNo" id="weekNo">W1</div>
+            <div class="weekInfo">
+              <span id="currentPeriod">8/3(月) - 8/9(日)</span>
+              <strong id="currentEvent">握力測定</strong>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><b id="participants">0</b><small>参加者</small></div>
+            <div class="stat"><b id="attempts">0</b><small>チャレンジ</small></div>
+            <div class="stat"><b id="tickets">0</b><small>くじ口数</small></div>
           </div>
         </div>
-        <div class="stats">
-          <div class="stat"><b id="participants">0</b><small>参加者</small></div>
-          <div class="stat"><b id="attempts">0</b><small>チャレンジ</small></div>
-          <div class="stat"><b id="tickets">0</b><small>くじ口数</small></div>
+      </header>
+
+      <nav class="tabs" aria-label="表示切替">
+        <button class="tabButton active" type="button" data-tab="entryPanel">記録入力</button>
+        <button class="tabButton" type="button" data-tab="rankingPanel">ランキング</button>
+      </nav>
+
+      <section class="section active" id="entryPanel">
+        <div class="surface">
+          <div class="sectionHead">
+            <h2>今日の記録</h2>
+            <span id="accountMeta">会員</span>
+          </div>
+
+          <div class="scoreGuide">
+            <div>
+              <b id="guideEvent">握力測定</b>
+              <small>同じ日は1回まで、1週間で最大3回まで登録できます。</small>
+            </div>
+            <div class="unitBadge" id="unitBadge">kg</div>
+          </div>
+
+          <form class="formGrid" id="entryForm">
+            <div class="formSplit">
+              <label>
+                記録
+                <input name="score" inputmode="decimal" placeholder="例：55.0" required>
+              </label>
+              <label>
+                入力者
+                <select name="inputBy">
+                  <option value="self">本人</option>
+                  <option value="staff">スタッフ代理</option>
+                </select>
+              </label>
+            </div>
+            <button class="primaryButton" type="submit">この記録を送信する</button>
+            <div class="message" id="entryMessage"></div>
+          </form>
+
+          <div class="miniPoster">
+            <img src="joyfit9-pop.png" alt="9周年イベントPOP">
+            <div>
+              <b>参加するほどくじチャンスUP</b>
+              <small>期間中のチャレンジ回数が抽選口数に反映されます。</small>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <nav class="tabs" aria-label="表示切替">
-      <button class="tabButton active" type="button" data-tab="entry">記録を送信</button>
-      <button class="tabButton" type="button" data-tab="ranking">ランキング</button>
-    </nav>
-
-    <section class="section panel active" id="entry">
-      <div class="account" id="accountBox">
-        <b id="accountName"></b>
-        <small id="accountMeta"></small>
-      </div>
-
-      <form class="box red" id="loginForm">
-        <p class="note">店舗で発行された参加者IDと4桁PINでログインしてください。ログイン後は記録だけ送信できます。</p>
-        <label>
-          参加者ID
-          <input name="participantId" autocomplete="username" placeholder="例：0001" required>
-        </label>
-        <label>
-          4桁PIN
-          <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
-        </label>
-        <button class="submit" type="submit">ログインする</button>
-      </form>
-
-      <form class="box red" id="entryForm" style="display:none">
-        <p class="note">今週の種目は自動で選ばれます。同じ日は1回まで、1週間で最大3回まで登録できます。</p>
-        <div class="inline">
-          <label>
-            記録
-            <input name="score" inputmode="decimal" placeholder="例：55.0" required>
-          </label>
-          <label>
-            入力者
-            <select name="inputBy">
-              <option value="self">本人</option>
-              <option value="staff">スタッフ代理</option>
-            </select>
-          </label>
+      <section class="section" id="rankingPanel">
+        <div class="surface">
+          <div class="sectionHead">
+            <h2>今週のTOP10</h2>
+            <span id="unitLabel">合計 kg</span>
+          </div>
+          <ol class="ranking" id="rankingList"></ol>
         </div>
-        <button class="submit" type="submit">この記録を送信する</button>
-        <button class="ghost" type="button" id="logoutButton">ログアウト</button>
-      </form>
 
-      <div class="message" id="message"></div>
+        <div class="surface" style="margin-top:14px">
+          <div class="sectionHead">
+            <h2>過去Week</h2>
+            <span>種目別TOP</span>
+          </div>
+          <div class="weeks" id="weekChips"></div>
+          <ol class="ranking" id="historyList"></ol>
+        </div>
+      </section>
+
+      <footer class="footer">
+        詳細はスタッフまで
+        <small>JOYFIT24 経堂 9th Anniversary Event</small>
+      </footer>
     </section>
-
-    <section class="section panel" id="ranking">
-      <div class="sectionTitle">
-        <h2>今週のTOP10</h2>
-        <span id="unitLabel">合計 kg</span>
-      </div>
-      <ol class="ranking" id="rankingList"></ol>
-
-      <div class="sectionTitle" style="margin-top:20px">
-        <h2>過去Week</h2>
-        <span>種目別TOP</span>
-      </div>
-      <div class="weeks" id="weekChips"></div>
-      <ol class="ranking" id="historyList"></ol>
-    </section>
-
-    <footer class="footer">
-      詳細はスタッフまで
-      <small>JOYFIT24 経堂 9th Anniversary Event</small>
-    </footer>
   </main>
 
   <script>
     const CONFIG = {
-      gasEndpoint: "https://script.google.com/macros/s/AKfycbwHCmikLDfBN25bLcEkaLP6RlGyuf7Z6B64hGB0BJGcLQjxwiysATZ6qSdAZNl5h0m1RQ/exec"
+      gasEndpoint: "https://script.google.com/macros/s/AKfycbwHCmikLDfBN25bLcEkaLP6RlGyuf7Z6B64hGB0BJGcLQjxwiysATZ6qSdAZNl5h0m1RQ/exec",
+      testWeekOverride: 1
     };
 
     const weeks = [
@@ -488,6 +823,9 @@
     };
 
     function getCurrentWeek() {
+      if (CONFIG.testWeekOverride) {
+        return weeks.find(w => w.week === CONFIG.testWeekOverride) || weeks[0];
+      }
       const today = new Date();
       const active = weeks.find(w => today >= new Date(`${w.start}T00:00:00+09:00`) && today <= new Date(`${w.end}T23:59:59+09:00`));
       if (active) return active;
@@ -503,16 +841,24 @@
     }
 
     function render() {
+      const loggedIn = Boolean(state.session && state.session.token);
+      document.getElementById("authView").classList.toggle("active", !loggedIn);
+      document.getElementById("appView").classList.toggle("active", loggedIn);
+      if (!loggedIn) return;
+
       const current = getCurrentWeek();
       const stats = summarize();
+      document.getElementById("accountName").textContent = state.session.nickname || "ゲスト";
+      document.getElementById("accountMeta").textContent = state.session.division === "staff" ? "スタッフ" : "会員";
       document.getElementById("weekNo").textContent = `W${current.week}`;
       document.getElementById("currentEvent").textContent = current.event;
       document.getElementById("currentPeriod").textContent = formatPeriod(current);
+      document.getElementById("guideEvent").textContent = current.event;
+      document.getElementById("unitBadge").textContent = current.unit;
       document.getElementById("participants").textContent = stats.participants;
       document.getElementById("attempts").textContent = stats.attempts;
       document.getElementById("tickets").textContent = stats.tickets;
       document.getElementById("unitLabel").textContent = `合計 ${current.unit}`;
-      renderAccount();
       renderRanking("rankingList", current.week);
       renderWeekChips();
       renderRanking("historyList", state.selectedWeek);
@@ -523,17 +869,6 @@
       const currentRecords = state.records.filter(r => Number(r.week) === current.week);
       const ids = new Set(currentRecords.map(r => r.participantId));
       return { participants: ids.size, attempts: currentRecords.length, tickets: state.records.length };
-    }
-
-    function renderAccount() {
-      const loggedIn = Boolean(state.session && state.session.token);
-      document.getElementById("loginForm").style.display = loggedIn ? "none" : "grid";
-      document.getElementById("entryForm").style.display = loggedIn ? "grid" : "none";
-      document.getElementById("accountBox").classList.toggle("show", loggedIn);
-      if (loggedIn) {
-        document.getElementById("accountName").textContent = state.session.displayName;
-        document.getElementById("accountMeta").textContent = `参加者ID ${state.session.participantId} / ${state.session.division === "staff" ? "スタッフ" : "会員"}`;
-      }
     }
 
     function renderRanking(target, weekNo) {
@@ -580,16 +915,16 @@
           state.records = data.records || [];
           state.rankings = data.rankings || {};
         } else {
-          showMessage(data.message || "データを取得できませんでした。", false);
+          showMessage("entryMessage", data.message || "データを取得できませんでした。", false);
         }
       } catch (error) {
-        showMessage("データ取得に失敗しました。GASの公開設定を確認してください。", false);
+        showMessage("entryMessage", "データ取得に失敗しました。GASの公開設定を確認してください。", false);
       }
       render();
     }
 
-    async function login(participantId, pin) {
-      const data = await api({ action: "login", participantId, pin });
+    async function login(fullName, nickname, pin) {
+      const data = await api({ action: "login", fullName, nickname, pin });
       if (!data.ok) return data;
       state.session = data.session;
       localStorage.setItem("joyfitSession", JSON.stringify(state.session));
@@ -623,7 +958,7 @@
     document.querySelectorAll(".tabButton").forEach(button => {
       button.addEventListener("click", () => {
         document.querySelectorAll(".tabButton").forEach(b => b.classList.toggle("active", b === button));
-        document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === button.dataset.tab));
+        document.querySelectorAll(".section").forEach(p => p.classList.toggle("active", p.id === button.dataset.tab));
       });
     });
 
@@ -631,16 +966,20 @@
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       try {
-        const data = await login(String(form.get("participantId") || "").trim(), String(form.get("pin") || "").trim());
+        const data = await login(
+          String(form.get("fullName") || "").trim(),
+          String(form.get("nickname") || "").trim(),
+          String(form.get("pin") || "").trim()
+        );
         if (!data.ok) {
-          showMessage(data.message || "ログインできませんでした。", false);
+          showMessage("authMessage", data.message || "ログインできませんでした。", false);
           return;
         }
-        showMessage("ログインしました。今週の記録を入力できます。", true);
         event.currentTarget.reset();
-        render();
+        await loadData();
+        showMessage("entryMessage", "ログインしました。記録を入力できます。", true);
       } catch (error) {
-        showMessage("ログインに失敗しました。", false);
+        showMessage("authMessage", "ログインに失敗しました。", false);
       }
     });
 
@@ -656,27 +995,26 @@
         inputBy: String(form.get("inputBy") || "self")
       };
       if (!Number.isFinite(payload.score)) {
-        showMessage("記録を数字で入力してください。", false);
+        showMessage("entryMessage", "記録を数字で入力してください。", false);
         return;
       }
       try {
         const result = await submitRecord(payload);
         if (!result.ok) {
-          showMessage(result.message || "送信できませんでした。", false);
+          showMessage("entryMessage", result.message || "送信できませんでした。", false);
           return;
         }
-        showMessage("送信完了！ランキングに反映しました。", true);
+        showMessage("entryMessage", "送信完了。ランキングに反映しました。", true);
         event.currentTarget.reset();
         await loadData();
       } catch (error) {
-        showMessage("送信に失敗しました。", false);
+        showMessage("entryMessage", "送信に失敗しました。", false);
       }
     });
 
     document.getElementById("logoutButton").addEventListener("click", () => {
       localStorage.removeItem("joyfitSession");
       state.session = null;
-      showMessage("ログアウトしました。", true);
       render();
     });
 
@@ -685,8 +1023,8 @@
       catch { return null; }
     }
 
-    function showMessage(text, ok) {
-      const el = document.getElementById("message");
+    function showMessage(id, text, ok) {
+      const el = document.getElementById(id);
       el.textContent = text;
       el.className = `message show ${ok ? "ok" : "err"}`;
     }
@@ -699,7 +1037,8 @@
       return String(value).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[s]));
     }
 
-    loadData();
+    render();
+    if (state.session) loadData();
   </script>
 </body>
 </html>
