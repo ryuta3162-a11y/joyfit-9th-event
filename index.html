@@ -62,7 +62,7 @@
     .authHero {
       position: relative;
       min-height: 100svh;
-      padding: 18px 14px;
+      padding: 22px 14px 18px;
       overflow: hidden;
       background:
         linear-gradient(180deg, #111 0%, #171719 45%, #090909 100%);
@@ -115,9 +115,9 @@
       position: relative;
       z-index: 1;
       display: grid;
-      align-content: center;
-      min-height: calc(100svh - 36px);
-      gap: 14px;
+      align-content: start;
+      min-height: calc(100svh - 40px);
+      gap: 16px;
     }
 
     .brandMark {
@@ -145,7 +145,7 @@
     }
 
     .authCopy {
-      padding-top: 10px;
+      padding-top: 18px;
       text-shadow: 0 5px 18px rgba(0,0,0,.5);
     }
 
@@ -165,8 +165,8 @@
 
     .authCopy h1 {
       margin: 12px 0 9px;
-      font-size: clamp(34px, 10vw, 48px);
-      line-height: .95;
+      font-size: clamp(34px, 9.2vw, 44px);
+      line-height: .98;
       font-weight: 1000;
     }
 
@@ -202,7 +202,7 @@
     .authCard {
       display: grid;
       gap: 12px;
-      padding: 14px;
+      padding: 16px;
       border-radius: 12px;
     }
 
@@ -266,11 +266,19 @@
     .primaryButton {
       border: 0;
       color: #fff;
-      background: linear-gradient(180deg, #d51b3a, #a20f28);
+      background: linear-gradient(180deg, #c21632, #971126);
       box-shadow: 0 7px 0 #70091b;
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
 
     .primaryButton:active {
+      transform: translateY(3px);
+      box-shadow: 0 4px 0 #70091b;
+    }
+
+    .primaryButton:disabled {
+      cursor: wait;
+      filter: saturate(.8) brightness(.92);
       transform: translateY(3px);
       box-shadow: 0 4px 0 #70091b;
     }
@@ -306,6 +314,95 @@
       color: var(--red-dark);
       background: #fff0f0;
       border: 2px solid #f0a4a4;
+    }
+
+    .loadingOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(8, 8, 9, .76);
+      backdrop-filter: blur(12px);
+    }
+
+    .loadingOverlay.show {
+      display: grid;
+    }
+
+    .loadingPanel {
+      width: min(100%, 330px);
+      padding: 24px 22px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(22,22,24,.98), rgba(5,5,6,.98));
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,.45);
+    }
+
+    .loaderRing {
+      position: relative;
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, #111 0 52%, transparent 53%),
+        conic-gradient(from 0deg, var(--red), #fff 34%, #555 52%, var(--red) 100%);
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 30px rgba(194,22,50,.35);
+    }
+
+    .loaderRing::after {
+      content: "";
+      position: absolute;
+      inset: 15px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.16);
+      background: #101012;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loadingPanel strong {
+      display: block;
+      font-size: 20px;
+      font-weight: 1000;
+    }
+
+    .loadingPanel p {
+      margin: 8px 0 18px;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .progressTrack {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+    }
+
+    .progressBar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #fff, var(--red));
+      transition: width .18s ease;
+    }
+
+    .progressText {
+      margin-top: 10px;
+      color: rgba(255,255,255,.9);
+      font-size: 13px;
+      font-weight: 1000;
+      font-variant-numeric: tabular-nums;
     }
 
     .shellHeader {
@@ -675,11 +772,11 @@
     }
 
     @media (max-width: 380px) {
-      .authHero { padding: 14px 12px; }
-      .authInner { min-height: calc(100svh - 28px); gap: 12px; }
+      .authHero { padding: 16px 12px 14px; }
+      .authInner { min-height: calc(100svh - 30px); gap: 12px; }
       .brandMark b { font-size: 14px; }
       .brandMark small { font-size: 9px; }
-      .authCopy { padding-top: 0; }
+      .authCopy { padding-top: 8px; }
       .authCopy h1 { margin: 10px 0 7px; }
       .authCopy p { font-size: 13px; line-height: 1.5; }
       .authCard { padding: 12px; }
@@ -721,7 +818,7 @@
               <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
               <span class="fieldHint">次回以降も同じニックネームと4桁パスワードで入れます。</span>
             </label>
-            <button class="primaryButton" type="submit">ログインして記録へ進む</button>
+            <button class="primaryButton" type="submit" id="loginButton">ログイン</button>
             <div class="message" id="authMessage"></div>
           </form>
         </div>
@@ -826,6 +923,15 @@
         <small>JOYFIT24 経堂 9th Anniversary Event</small>
       </footer>
     </section>
+    <div class="loadingOverlay" id="loadingOverlay" aria-live="polite" aria-hidden="true">
+      <div class="loadingPanel">
+        <div class="loaderRing" aria-hidden="true"></div>
+        <strong>ログイン中です</strong>
+        <p>お待ちください。参加情報を確認しています。</p>
+        <div class="progressTrack"><div class="progressBar" id="progressBar"></div></div>
+        <div class="progressText" id="progressText">0%</div>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -966,12 +1072,19 @@
         const callbackName = `joyfitCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const script = document.createElement("script");
         const search = new URLSearchParams({ ...params, callback: callbackName });
+        const timeoutId = window.setTimeout(() => {
+          reject(new Error("request timeout"));
+          script.remove();
+          delete window[callbackName];
+        }, 15000);
         window[callbackName] = data => {
+          window.clearTimeout(timeoutId);
           resolve(data);
           script.remove();
           delete window[callbackName];
         };
         script.onerror = () => {
+          window.clearTimeout(timeoutId);
           reject(new Error("request failed"));
           script.remove();
           delete window[callbackName];
@@ -991,20 +1104,28 @@
     document.getElementById("loginForm").addEventListener("submit", async event => {
       event.preventDefault();
       const form = new FormData(event.currentTarget);
+      const button = document.getElementById("loginButton");
+      showMessage("authMessage", "", true);
+      setLoginLoading(true);
+      button.disabled = true;
       try {
         const data = await login(
           String(form.get("nickname") || "").trim(),
           String(form.get("pin") || "").trim()
         );
         if (!data.ok) {
-          showMessage("authMessage", data.message || "ログインできませんでした。4桁パスワードかGAS更新を確認してください。", false);
+          showMessage("authMessage", data.message || "ログインできませんでした。ニックネームと4桁パスワードを確認してください。", false);
           return;
         }
+        completeLoginLoading();
         event.currentTarget.reset();
         await loadData();
         showMessage("entryMessage", "ログインしました。記録を入力できます。", true);
       } catch (error) {
-        showMessage("authMessage", "ログインに失敗しました。Apps Scriptを新しいコードでデプロイ更新してください。", false);
+        showMessage("authMessage", "通信できませんでした。GASのデプロイURL、アクセス権、または新しいバージョンのデプロイを確認してください。", false);
+      } finally {
+        window.setTimeout(() => setLoginLoading(false), 240);
+        button.disabled = false;
       }
     });
 
@@ -1050,8 +1171,48 @@
 
     function showMessage(id, text, ok) {
       const el = document.getElementById(id);
+      if (!text) {
+        el.textContent = "";
+        el.className = "message";
+        return;
+      }
       el.textContent = text;
       el.className = `message show ${ok ? "ok" : "err"}`;
+    }
+
+    let loadingTimer = null;
+    let loadingPercent = 0;
+
+    function setLoginLoading(active) {
+      const overlay = document.getElementById("loadingOverlay");
+      if (active) {
+        loadingPercent = 0;
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+        updateProgress(0);
+        window.clearInterval(loadingTimer);
+        loadingTimer = window.setInterval(() => {
+          const next = loadingPercent < 70 ? loadingPercent + 8 : loadingPercent + 2;
+          updateProgress(Math.min(next, 92));
+        }, 180);
+        return;
+      }
+      window.clearInterval(loadingTimer);
+      loadingTimer = null;
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden", "true");
+      updateProgress(0);
+    }
+
+    function completeLoginLoading() {
+      window.clearInterval(loadingTimer);
+      updateProgress(100);
+    }
+
+    function updateProgress(value) {
+      loadingPercent = value;
+      document.getElementById("progressBar").style.width = `${value}%`;
+      document.getElementById("progressText").textContent = `${Math.round(value)}%`;
     }
 
     function formatScore(value) {
