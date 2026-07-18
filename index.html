@@ -406,11 +406,12 @@
     }
 
     .shellHeader {
-      padding: 16px 16px 14px;
+      padding: 18px 16px 16px;
       color: #fff;
       background:
-        linear-gradient(135deg, rgba(255,255,255,.10) 0 8px, transparent 8px 16px),
-        linear-gradient(180deg, #c21632, #74091a);
+        radial-gradient(circle at 86% 14%, rgba(255,255,255,.18), transparent 120px),
+        linear-gradient(135deg, rgba(255,255,255,.08) 0 8px, transparent 8px 16px),
+        linear-gradient(180deg, #161616 0%, #090909 45%, #c21632 140%);
     }
 
     .headerTop {
@@ -455,34 +456,38 @@
     }
 
     .weekHero {
-      margin-top: 16px;
+      margin-top: 18px;
       overflow: hidden;
       border-radius: 10px;
-      background: #fff;
+      background:
+        linear-gradient(135deg, rgba(194,22,50,.12), transparent 44%),
+        #fff;
       color: var(--ink);
-      box-shadow: 0 14px 30px rgba(45, 0, 0, .22);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, .28);
     }
 
     .weekHeroTop {
       display: grid;
-      grid-template-columns: 80px 1fr;
+      grid-template-columns: 112px 1fr;
       background: #fff;
     }
 
     .weekNo {
       display: grid;
       place-items: center;
-      min-height: 82px;
+      min-height: 88px;
       color: #fff;
-      background: #111;
-      font-size: 34px;
+      background:
+        linear-gradient(160deg, #1b1b1d, #050505 58%, #c21632 170%);
+      font-size: 18px;
       font-weight: 1000;
+      line-height: 1;
     }
 
     .weekInfo {
       display: grid;
       align-content: center;
-      padding: 12px 14px;
+      padding: 14px 15px;
     }
 
     .weekInfo span {
@@ -493,39 +498,9 @@
 
     .weekInfo strong {
       margin-top: 3px;
-      font-size: 26px;
+      font-size: 28px;
       line-height: 1.05;
       font-weight: 1000;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border-top: 1px solid var(--line);
-    }
-
-    .stat {
-      padding: 11px 8px 12px;
-      text-align: center;
-      border-right: 1px solid var(--line);
-    }
-
-    .stat:last-child { border-right: 0; }
-
-    .stat b {
-      display: block;
-      color: var(--red);
-      font-size: 23px;
-      line-height: 1;
-      font-weight: 1000;
-    }
-
-    .stat small {
-      display: block;
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 900;
     }
 
     .tabs {
@@ -563,7 +538,7 @@
     .surface {
       display: grid;
       gap: 14px;
-      padding: 15px;
+      padding: 16px;
       background: #fff;
       border-color: var(--line);
     }
@@ -594,10 +569,10 @@
       grid-template-columns: 1fr auto;
       gap: 12px;
       align-items: center;
-      padding: 12px;
-      border: 2px solid var(--line);
+      padding: 13px;
+      border: 1px solid #ead9d9;
       border-radius: 8px;
-      background: #fffaf8;
+      background: linear-gradient(180deg, #fff, #fff8f8);
     }
 
     .scoreGuide b {
@@ -629,7 +604,7 @@
 
     .formSplit {
       display: grid;
-      grid-template-columns: 1fr 136px;
+      grid-template-columns: 1fr;
       gap: 10px;
       align-items: end;
     }
@@ -783,8 +758,8 @@
       input, select { min-height: 50px; }
       .pinRow,
       .formSplit { grid-template-columns: 1fr; }
-      .weekHeroTop { grid-template-columns: 68px 1fr; }
-      .weekNo { font-size: 30px; }
+      .weekHeroTop { grid-template-columns: 96px 1fr; }
+      .weekNo { font-size: 16px; }
       .weekInfo strong { font-size: 22px; }
       .score { font-size: 16px; }
     }
@@ -837,16 +812,11 @@
 
         <div class="weekHero">
           <div class="weekHeroTop">
-            <div class="weekNo" id="weekNo">W1</div>
+            <div class="weekNo" id="weekNo">Week 1</div>
             <div class="weekInfo">
               <span id="currentPeriod">8/3(月) - 8/9(日)</span>
               <strong id="currentEvent">握力測定</strong>
             </div>
-          </div>
-          <div class="stats">
-            <div class="stat"><b id="participants">0</b><small>参加者</small></div>
-            <div class="stat"><b id="attempts">0</b><small>チャレンジ</small></div>
-            <div class="stat"><b id="tickets">0</b><small>くじ口数</small></div>
           </div>
         </div>
       </header>
@@ -866,7 +836,7 @@
           <div class="scoreGuide">
             <div>
               <b id="guideEvent">握力測定</b>
-              <small>同じ日は1回まで、1週間で最大3回まで登録できます。</small>
+              <small>数字だけ入力してください。同じ日は1回まで、1週間で最大3回まで登録できます。</small>
             </div>
             <div class="unitBadge" id="unitBadge">kg</div>
           </div>
@@ -877,25 +847,10 @@
                 記録
                 <input name="score" inputmode="decimal" placeholder="例：55.0" required>
               </label>
-              <label>
-                入力者
-                <select name="inputBy">
-                  <option value="self">本人</option>
-                  <option value="staff">スタッフ代理</option>
-                </select>
-              </label>
             </div>
-            <button class="primaryButton" type="submit">この記録を送信する</button>
+            <button class="primaryButton" type="submit">記録を送信する</button>
             <div class="message" id="entryMessage"></div>
           </form>
-
-          <div class="scoreGuide">
-            <div>
-              <b>参加するほどくじチャンスUP</b>
-              <small>期間中のチャレンジ回数が抽選口数に反映されます。</small>
-            </div>
-            <div class="unitBadge">抽選</div>
-          </div>
         </div>
       </section>
 
@@ -979,28 +934,17 @@
       if (!loggedIn) return;
 
       const current = getCurrentWeek();
-      const stats = summarize();
       document.getElementById("accountName").textContent = state.session.nickname || "ゲスト";
       document.getElementById("accountMeta").textContent = state.session.division === "staff" ? "スタッフ" : "会員";
-      document.getElementById("weekNo").textContent = `W${current.week}`;
+      document.getElementById("weekNo").textContent = `Week ${current.week}`;
       document.getElementById("currentEvent").textContent = current.event;
       document.getElementById("currentPeriod").textContent = formatPeriod(current);
       document.getElementById("guideEvent").textContent = current.event;
       document.getElementById("unitBadge").textContent = current.unit;
-      document.getElementById("participants").textContent = stats.participants;
-      document.getElementById("attempts").textContent = stats.attempts;
-      document.getElementById("tickets").textContent = stats.tickets;
       document.getElementById("unitLabel").textContent = `合計 ${current.unit}`;
       renderRanking("rankingList", current.week);
       renderWeekChips();
       renderRanking("historyList", state.selectedWeek);
-    }
-
-    function summarize() {
-      const current = getCurrentWeek();
-      const currentRecords = state.records.filter(r => Number(r.week) === current.week);
-      const ids = new Set(currentRecords.map(r => r.participantId));
-      return { participants: ids.size, attempts: currentRecords.length, tickets: state.records.length };
     }
 
     function renderRanking(target, weekNo) {
@@ -1009,7 +953,7 @@
       const rows = state.rankings[String(weekNo)] || [];
       list.innerHTML = "";
       if (!rows.length) {
-        list.innerHTML = `<li class="rankItem"><div class="place">-</div><div class="name">まだ記録がありません<span class="sub">最初のチャレンジをお待ちしています</span></div><div class="score">0 ${w.unit}</div></li>`;
+        list.innerHTML = `<li class="rankItem"><div class="place">-</div><div class="name">まだ記録がありません<span class="sub">最初の記録をお待ちしています</span></div><div class="score">0 ${w.unit}</div></li>`;
         return;
       }
       rows.forEach(row => {
@@ -1017,7 +961,7 @@
         li.className = "rankItem";
         li.innerHTML = `
           <div class="place">${row.rank}</div>
-          <div class="name">${escapeHtml(row.displayName)}${row.division === "staff" ? " STAFF" : ""}<span class="sub">${row.attempts}回チャレンジ</span></div>
+          <div class="name">${escapeHtml(row.displayName)}${row.division === "staff" ? " STAFF" : ""}<span class="sub">${row.attempts}回記録</span></div>
           <div class="score">${formatScore(row.total)} ${w.unit}</div>
         `;
         list.appendChild(li);
@@ -1031,7 +975,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = `weekChip ${w.week === state.selectedWeek ? "active" : ""}`;
-        button.textContent = `W${w.week} ${w.event}`;
+        button.textContent = `Week ${w.week} ${w.event}`;
         button.addEventListener("click", () => {
           state.selectedWeek = w.week;
           render();
@@ -1138,7 +1082,7 @@
         event: current.event,
         score: Number(form.get("score")),
         unit: current.unit,
-        inputBy: String(form.get("inputBy") || "self")
+        inputBy: "self"
       };
       if (!Number.isFinite(payload.score)) {
         showMessage("entryMessage", "記録を数字で入力してください。", false);
