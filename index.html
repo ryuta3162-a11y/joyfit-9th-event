@@ -980,15 +980,30 @@
     }
 
     async function login(nickname, pin) {
-      const data = await api({ action: "login", nickname, pin });
-      if (!data.ok) return data;
-      state.session = data.session;
+      const cleanNickname = String(nickname || "").trim().slice(0, 16);
+      const cleanPin = String(pin || "").trim();
+      if (!cleanNickname) return { ok: false, message: "ニックネームを入力してください。" };
+      if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: "4桁パスワードを入力してください。" };
+      const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString();
+      state.session = {
+        token: "local",
+        participantId: "",
+        nickname: cleanNickname,
+        pin: cleanPin,
+        division: "member",
+        expiresAt: expires
+      };
       localStorage.setItem("joyfitSession", JSON.stringify(state.session));
-      return data;
+      return { ok: true, session: state.session };
     }
 
     async function submitRecord(payload) {
-      return api({ action: "submit", token: state.session.token, payload: JSON.stringify(payload) });
+      const body = {
+        ...payload,
+        nickname: state.session.nickname,
+        pin: state.session.pin
+      };
+      return api({ action: "submit", token: state.session.token || "", payload: JSON.stringify(body) });
     }
 
     function api(params) {
@@ -1043,10 +1058,10 @@
         }
         completeLoginLoading();
         event.currentTarget.reset();
-        await loadData();
+        loadData();
         showMessage("entryMessage", "ログインしました。記録を入力できます。", true);
       } catch (error) {
-        showMessage("authMessage", "通信できませんでした。GASのデプロイURL、アクセス権、または新しいバージョンのデプロイを確認してください。", false);
+        showMessage("authMessage", "ログイン情報を保存できませんでした。もう一度入力してください。", false);
       } finally {
         window.setTimeout(() => setLoginLoading(false), 240);
         button.disabled = false;

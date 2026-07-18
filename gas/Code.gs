@@ -79,9 +79,7 @@ function appendRecord(token, body, eventObject) {
   lock.waitLock(10000);
   try {
     setupSheets();
-    const session = findSession(token);
-    if (!session) return { ok: false, message: 'ログインし直してください。' };
-    const participant = findParticipant(session.participantId);
+    const participant = resolveParticipantForRecord(token, body);
     if (!participant || !participant.active) return { ok: false, message: '参加情報を確認してください。' };
 
     const week = getCurrentWeek();
@@ -145,6 +143,20 @@ function appendRecord(token, body, eventObject) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function resolveParticipantForRecord(token, body) {
+  const session = findSession(token);
+  if (session) return findParticipant(session.participantId);
+
+  const cleanNickname = cleanText(body && body.nickname, 16);
+  const cleanPin = String(body && body.pin || '').trim();
+  if (!cleanNickname || !/^[0-9]{4}$/.test(cleanPin)) return null;
+
+  let participant = findParticipantByNickname(cleanNickname);
+  if (!participant) return createParticipant(cleanNickname, cleanPin);
+  if (String(participant.pin) !== cleanPin) throw new Error('4桁パスワードが違います。');
+  return participant;
 }
 
 function readPublicState() {
