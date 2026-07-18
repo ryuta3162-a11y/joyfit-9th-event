@@ -71,7 +71,6 @@ function login(nickname, pin) {
       division: participant.division,
       expiresAt: expires.toISOString(),
     },
-    state: readPublicState(),
   };
 }
 
@@ -98,22 +97,51 @@ function appendRecord(token, body, eventObject) {
     if (samePersonWeek.length >= 3) return { ok: false, message: 'この週のチャレンジはすでに3回分登録されています。' };
     if (samePersonWeek.some(r => r.dateKey === dateKey)) return { ok: false, message: '同じ日の登録は1回までです。' };
 
-    getSheet(RECORDS_SHEET).appendRow([
-      Utilities.getUuid(),
-      now.toISOString(),
+    const record = {
+      id: Utilities.getUuid(),
+      createdAt: now.toISOString(),
       dateKey,
-      participant.participantId,
-      participant.nickname,
-      week.week,
-      week.event,
+      participantId: participant.participantId,
+      displayName: participant.nickname,
+      week: week.week,
+      event: week.event,
       score,
-      week.unit,
-      participant.division,
+      unit: week.unit,
+      division: participant.division,
       inputBy,
-      eventObject && eventObject.parameter ? String(eventObject.parameter.userAgent || '') : '',
+      userAgent: eventObject && eventObject.parameter ? String(eventObject.parameter.userAgent || '') : '',
+    };
+
+    getSheet(RECORDS_SHEET).appendRow([
+      record.id,
+      record.createdAt,
+      dateKey,
+      record.participantId,
+      record.displayName,
+      record.week,
+      record.event,
+      score,
+      record.unit,
+      record.division,
+      record.inputBy,
+      record.userAgent,
     ]);
 
-    return { ok: true, message: '登録しました。', state: readPublicState() };
+    return {
+      ok: true,
+      message: '登録しました。',
+      record: {
+        createdAt: record.createdAt,
+        dateKey: record.dateKey,
+        participantId: record.participantId,
+        displayName: record.displayName,
+        week: record.week,
+        event: record.event,
+        score: record.score,
+        unit: record.unit,
+        division: record.division,
+      },
+    };
   } finally {
     lock.releaseLock();
   }
