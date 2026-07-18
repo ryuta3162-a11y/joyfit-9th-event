@@ -11,28 +11,22 @@ const EVENT_WEEKS = [
   { week: 4, event: '腕立て伏せ', unit: '回', start: '2026-08-24', end: '2026-08-30', higherIsBetter: true },
 ];
 
-const PARTICIPANT_HEADERS = ['participantId', 'fullName', 'nickname', 'pin', 'division', 'active', 'memo', 'createdAt', 'updatedAt'];
+const PARTICIPANT_HEADERS = ['participantId', 'nickname', 'pin', 'division', 'active', 'memo', 'createdAt', 'updatedAt'];
 const RECORD_HEADERS = ['id', 'createdAt', 'dateKey', 'participantId', 'displayName', 'week', 'event', 'score', 'unit', 'division', 'inputBy', 'userAgent'];
 const SESSION_HEADERS = ['token', 'participantId', 'createdAt', 'expiresAt'];
 
 function doGet(e) {
-  const action = String((e.parameter && e.parameter.action) || 'list');
+  const params = e && e.parameter ? e.parameter : {};
+  const action = String(params.action || 'list');
   try {
     if (action === 'health') return jsonResponse({ ok: true, message: 'ok' }, e);
     if (action === 'setup') return jsonResponse(setupSheets(), e);
-    if (action === 'login') return jsonResponse(login(e.parameter.nickname, e.parameter.pin), e);
+    if (action === 'login') return jsonResponse(login(params.nickname, params.pin), e);
     if (action === 'submit') {
-      const body = JSON.parse(String(e.parameter.payload || '{}'));
-      return jsonResponse(appendRecord(e.parameter.token, body, e), e);
+      const body = JSON.parse(String(params.payload || '{}'));
+      return jsonResponse(appendRecord(params.token, body, e), e);
     }
-    return jsonResponse({
-      ok: true,
-      weeks: EVENT_WEEKS,
-      currentWeek: getCurrentWeek(),
-      records: publicRecords(),
-      rankings: buildAllRankings(),
-      stats: buildStats(),
-    }, e);
+    return jsonResponse(readPublicState(), e);
   } catch (error) {
     return jsonResponse({ ok: false, message: error.message || '処理に失敗しました。' }, e);
   }
@@ -42,16 +36,17 @@ function setupSheets() {
   ensureSheet(PARTICIPANTS_SHEET, PARTICIPANT_HEADERS);
   ensureSheet(RECORDS_SHEET, RECORD_HEADERS);
   ensureSheet(SESSIONS_SHEET, SESSION_HEADERS);
+  const now = new Date().toISOString();
   const participants = getSheet(PARTICIPANTS_SHEET);
   if (participants.getLastRow() < 2) {
-    const now = new Date().toISOString();
-    participants.appendRow([Utilities.getUuid(), '', 'タロウ', '1234', 'member', true, 'サンプル会員', now, now]);
-    participants.appendRow([Utilities.getUuid(), '', 'STAFF', '9999', 'staff', true, 'スタッフ確認用', now, now]);
+    participants.appendRow([Utilities.getUuid(), 'テスト', '1111', 'member', true, '動作確認用', now, now]);
+    participants.appendRow([Utilities.getUuid(), 'STAFF', '9999', 'staff', true, 'スタッフ確認用', now, now]);
   }
-  return { ok: true, message: 'シートを準備しました。participantsに参加者が自動登録されます。' };
+  return { ok: true, message: 'シートを準備しました。' };
 }
 
 function login(nickname, pin) {
+  setupSheets();
   const cleanNickname = cleanText(nickname, 16);
   const cleanPin = String(pin || '').trim();
   if (!cleanNickname) return { ok: false, message: 'ニックネームを入力してください。' };
@@ -59,13 +54,14 @@ function login(nickname, pin) {
 
   let participant = findParticipantByNickname(cleanNickname);
   if (!participant) participant = createParticipant(cleanNickname, cleanPin);
-  if (!participant.active) return { ok: false, message: 'このアカウントは停止されています。' };
-  if (String(participant.pin) !== String(pin)) return { ok: false, message: 'PINが違います。' };
+  if (!participant.active) return { ok: false, message: 'このニックネームは停止されています。スタッフにお声がけください。' };
+  if (String(participant.pin) !== cleanPin) return { ok: false, message: '4桁パスワードが違います。' };
 
   const token = Utilities.getUuid() + Utilities.getUuid();
   const now = new Date();
   const expires = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30);
   getSheet(SESSIONS_SHEET).appendRow([token, participant.participantId, now.toISOString(), expires.toISOString()]);
+
   return {
     ok: true,
     session: {
@@ -75,6 +71,7 @@ function login(nickname, pin) {
       division: participant.division,
       expiresAt: expires.toISOString(),
     },
+    state: readPublicState(),
   };
 }
 
@@ -82,16 +79,17 @@ function appendRecord(token, body, eventObject) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
+    setupSheets();
     const session = findSession(token);
     if (!session) return { ok: false, message: 'ログインし直してください。' };
     const participant = findParticipant(session.participantId);
-    if (!participant || !participant.active) return { ok: false, message: '参加者情報を確認してください。' };
+    if (!participant || !participant.active) return { ok: false, message: '参加情報を確認してください。' };
 
     const week = getCurrentWeek();
     const score = Number(body.score);
     const inputBy = body.inputBy === 'staff' ? 'staff' : 'self';
-    if (!Number.isFinite(score)) throw new Error('記録を数字で入力してください。');
-    if (score < -1000 || score > 10000) throw new Error('記録の数値を確認してください。');
+    if (!Number.isFinite(score)) return { ok: false, message: '記録を数字で入力してください。' };
+    if (score < -1000 || score > 10000) return { ok: false, message: '記録の数値を確認してください。' };
 
     const now = new Date();
     const dateKey = Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy-MM-dd');
@@ -115,10 +113,22 @@ function appendRecord(token, body, eventObject) {
       eventObject && eventObject.parameter ? String(eventObject.parameter.userAgent || '') : '',
     ]);
 
-    return { ok: true, message: '登録しました。', rankings: buildAllRankings(), stats: buildStats() };
+    return { ok: true, message: '登録しました。', state: readPublicState() };
   } finally {
     lock.releaseLock();
   }
+}
+
+function readPublicState() {
+  setupSheets();
+  return {
+    ok: true,
+    weeks: EVENT_WEEKS,
+    currentWeek: getCurrentWeek(),
+    records: publicRecords(),
+    rankings: buildAllRankings(),
+    stats: buildStats(),
+  };
 }
 
 function getSpreadsheet() {
@@ -136,7 +146,8 @@ function ensureSheet(name, headers) {
   const ss = getSpreadsheet();
   let sheet = ss.getSheetByName(name);
   if (!sheet) sheet = ss.insertSheet(name);
-  const values = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), headers.length)).getValues()[0];
+  const width = Math.max(sheet.getLastColumn(), headers.length);
+  const values = sheet.getRange(1, 1, 1, width).getValues()[0];
   const needsHeader = headers.some((header, index) => values[index] !== header);
   if (needsHeader) {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -146,15 +157,15 @@ function ensureSheet(name, headers) {
 }
 
 function getParticipants() {
-  const rows = readRows(getSheet(PARTICIPANTS_SHEET), PARTICIPANT_HEADERS);
-  return rows.map(r => ({
-    participantId: String(r.participantId || '').trim(),
-    fullName: String(r.fullName || '').trim(),
-    nickname: String(r.nickname || '').trim(),
-    pin: String(r.pin || '').trim(),
-    division: r.division === 'staff' ? 'staff' : 'member',
-    active: r.active === true || String(r.active).toUpperCase() === 'TRUE' || String(r.active) === '1',
-  })).filter(r => r.participantId);
+  return readRows(getSheet(PARTICIPANTS_SHEET), PARTICIPANT_HEADERS)
+    .map(r => ({
+      participantId: String(r.participantId || '').trim(),
+      nickname: String(r.nickname || '').trim(),
+      pin: String(r.pin || '').trim(),
+      division: r.division === 'staff' ? 'staff' : 'member',
+      active: r.active === true || String(r.active).toUpperCase() === 'TRUE' || String(r.active) === '1',
+    }))
+    .filter(r => r.participantId && r.nickname);
 }
 
 function findParticipant(participantId) {
@@ -176,7 +187,7 @@ function createParticipant(nickname, pin) {
     division: 'member',
     active: true,
   };
-  getSheet(PARTICIPANTS_SHEET).appendRow([participant.participantId, '', nickname, pin, 'member', true, '自動登録', now, now]);
+  getSheet(PARTICIPANTS_SHEET).appendRow([participant.participantId, nickname, pin, 'member', true, '自動登録', now, now]);
   return participant;
 }
 
@@ -239,7 +250,12 @@ function buildStats() {
   const currentRecords = records.filter(r => Number(r.week) === current.week);
   const participants = {};
   currentRecords.forEach(r => participants[r.participantId] = true);
-  return { currentWeek: current.week, participants: Object.keys(participants).length, attempts: currentRecords.length, tickets: records.length };
+  return {
+    currentWeek: current.week,
+    participants: Object.keys(participants).length,
+    attempts: currentRecords.length,
+    tickets: records.length,
+  };
 }
 
 function buildAllRankings() {
@@ -255,7 +271,15 @@ function buildRanking(records, week) {
   records.filter(r => Number(r.week) === week.week).forEach(record => {
     const key = record.participantId;
     if (!grouped[key]) {
-      grouped[key] = { displayName: record.displayName, week: week.week, event: week.event, unit: week.unit, division: record.division, attempts: 0, total: 0 };
+      grouped[key] = {
+        displayName: record.displayName,
+        week: week.week,
+        event: week.event,
+        unit: week.unit,
+        division: record.division,
+        attempts: 0,
+        total: 0,
+      };
     }
     grouped[key].attempts += 1;
     grouped[key].total += Number(record.score);

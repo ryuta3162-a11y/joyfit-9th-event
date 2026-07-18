@@ -26,10 +26,13 @@
 3. `Code.gs` の中身を貼り付けて保存します。
 4. エディタ上部の関数選択で `setupSheets` を選んで実行します。
 5. 初回だけGoogleの権限許可を行います。
-6. `participants` シートにサンプル参加者が作成されます。通常は参加者の初回ログインで自動追加されます。
-7. `デプロイ > 新しいデプロイ > ウェブアプリ` を選びます。
-8. 実行ユーザーは「自分」、アクセス権は運用方針に合わせて「全員」または「リンクを知っている全員」にします。
-9. 発行されたウェブアプリURLを `index.html` の `CONFIG.gasEndpoint` に貼り付けます。
+6. `participants`, `records`, `sessions` シートが作成されます。
+7. `participants` には動作確認用として `テスト / 1111` と `STAFF / 9999` が入ります。通常は参加者の初回ログインで自動追加されます。
+8. `デプロイ > 新しいデプロイ > ウェブアプリ` を選びます。
+9. 実行ユーザーは「自分」、アクセス権は運用方針に合わせて「全員」または「リンクを知っている全員」にします。
+10. 発行されたウェブアプリURLを `index.html` の `CONFIG.gasEndpoint` に貼り付けます。
+
+既存デプロイを更新する場合は、`デプロイを管理 > 編集 > バージョン: 新しいバージョン` を選んで再デプロイしてください。保存だけでは公開URL側に反映されません。
 
 ```js
 const CONFIG = {
@@ -45,10 +48,9 @@ const CONFIG = {
 
 店舗側で確認できる参加者管理シートです。
 
-`participantId`, `fullName`, `nickname`, `pin`, `division`, `active`, `memo`, `createdAt`, `updatedAt`
+`participantId`, `nickname`, `pin`, `division`, `active`, `memo`, `createdAt`, `updatedAt`
 
 - `participantId`: 自動発行される内部IDです。
-- `fullName`: 今回は入力画面では使いません。空欄でOKです。
 - `nickname`: ランキング表示名です。個人が特定されない名前を案内してください。
 - `pin`: 4桁パスワードです。例: `1234`
 - `division`: `member` または `staff`

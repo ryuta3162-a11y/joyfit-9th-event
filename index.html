@@ -49,8 +49,8 @@
     button { cursor: pointer; }
 
     .app {
-      width: min(100%, 480px);
-      min-height: 100vh;
+      width: min(100%, 430px);
+      min-height: 100svh;
       margin: 0 auto;
       background: var(--paper);
       box-shadow: 0 0 60px rgba(30, 0, 0, .22);
@@ -61,8 +61,8 @@
 
     .authHero {
       position: relative;
-      min-height: 100vh;
-      padding: 28px 18px 24px;
+      min-height: 100svh;
+      padding: 18px 14px;
       overflow: hidden;
       background:
         linear-gradient(180deg, #111 0%, #171719 45%, #090909 100%);
@@ -83,9 +83,9 @@
     .authHero::after {
       content: "";
       position: absolute;
-      right: 24px;
-      top: 92px;
-      width: 160px;
+      right: -18px;
+      top: 42px;
+      width: 138px;
       aspect-ratio: 1;
       border: 2px solid rgba(255,255,255,.12);
       border-radius: 50%;
@@ -115,9 +115,9 @@
       position: relative;
       z-index: 1;
       display: grid;
-      align-content: end;
-      min-height: calc(100vh - 52px);
-      gap: 16px;
+      align-content: center;
+      min-height: calc(100svh - 36px);
+      gap: 14px;
     }
 
     .brandMark {
@@ -125,7 +125,7 @@
       gap: 5px;
       align-self: start;
       width: fit-content;
-      padding: 10px 12px;
+      padding: 9px 11px;
       border: 1px solid rgba(255,255,255,.22);
       background: rgba(255,255,255,.08);
       border-radius: 8px;
@@ -145,7 +145,7 @@
     }
 
     .authCopy {
-      padding-top: 96px;
+      padding-top: 10px;
       text-shadow: 0 5px 18px rgba(0,0,0,.5);
     }
 
@@ -165,7 +165,7 @@
 
     .authCopy h1 {
       margin: 12px 0 9px;
-      font-size: clamp(36px, 11vw, 54px);
+      font-size: clamp(34px, 10vw, 48px);
       line-height: .95;
       font-weight: 1000;
     }
@@ -175,14 +175,14 @@
       margin: 0;
       color: rgba(255,255,255,.9);
       font-size: 14px;
-      line-height: 1.65;
+      line-height: 1.55;
       font-weight: 800;
     }
 
     .motionLine {
       width: 180px;
-      height: 5px;
-      margin-top: 16px;
+      height: 4px;
+      margin-top: 12px;
       border-radius: 999px;
       background: var(--red);
       transform-origin: left center;
@@ -201,8 +201,9 @@
 
     .authCard {
       display: grid;
-      gap: 14px;
-      padding: 16px;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 12px;
     }
 
     .formGrid {
@@ -227,7 +228,7 @@
       border-radius: 8px;
       background: #fff;
       color: var(--ink);
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 900;
       outline: none;
     }
@@ -674,8 +675,15 @@
     }
 
     @media (max-width: 380px) {
-      .authHero { padding: 22px 14px 20px; }
-      .authCopy { padding-top: 70px; }
+      .authHero { padding: 14px 12px; }
+      .authInner { min-height: calc(100svh - 28px); gap: 12px; }
+      .brandMark b { font-size: 14px; }
+      .brandMark small { font-size: 9px; }
+      .authCopy { padding-top: 0; }
+      .authCopy h1 { margin: 10px 0 7px; }
+      .authCopy p { font-size: 13px; line-height: 1.5; }
+      .authCard { padding: 12px; }
+      input, select { min-height: 50px; }
       .pinRow,
       .formSplit { grid-template-columns: 1fr; }
       .weekHeroTop { grid-template-columns: 68px 1fr; }
