@@ -6,19 +6,19 @@
   <title>JOYFIT24 9周年チャレンジ</title>
   <style>
     :root {
-      --red: #d71920;
-      --red-dark: #8f080e;
-      --red-soft: #fff0ef;
+      --red: #c21632;
+      --red-dark: #7b0a1b;
+      --red-soft: #fff1f4;
       --black: #111111;
       --ink: #252120;
       --muted: #786d68;
       --line: #e7d9d4;
-      --paper: #fffaf6;
+      --paper: #f6f6f7;
       --white: #ffffff;
       --gold: #e8b62d;
       --gold-soft: #fff6d9;
       --green: #0c7a61;
-      --shadow: 0 18px 44px rgba(75, 18, 14, .16);
+      --shadow: 0 18px 44px rgba(20, 20, 20, .16);
       font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
     }
 
@@ -34,9 +34,8 @@
       margin: 0;
       color: var(--ink);
       background:
-        linear-gradient(135deg, rgba(215, 25, 32, .10) 0 11px, transparent 11px 22px),
-        radial-gradient(circle at 12% 0%, rgba(232, 182, 45, .22), transparent 280px),
-        linear-gradient(180deg, #fffdfb 0%, #f8ebe6 48%, #ead8d2 100%);
+        linear-gradient(135deg, rgba(194, 22, 50, .08) 0 11px, transparent 11px 22px),
+        linear-gradient(180deg, #ffffff 0%, #f4f4f5 48%, #e8e8eb 100%);
       letter-spacing: 0;
     }
 
@@ -66,8 +65,7 @@
       padding: 28px 18px 24px;
       overflow: hidden;
       background:
-        linear-gradient(135deg, rgba(255,255,255,.08) 0 8px, transparent 8px 16px),
-        linear-gradient(180deg, #2a0305 0%, #90070d 48%, #180203 100%);
+        linear-gradient(180deg, #111 0%, #171719 45%, #090909 100%);
       color: #fff;
     }
 
@@ -76,21 +74,41 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(160deg, transparent 0 42%, rgba(255,255,255,.12) 42% 43%, transparent 43% 100%),
-        linear-gradient(20deg, transparent 0 55%, rgba(255,255,255,.08) 55% 56%, transparent 56% 100%),
-        linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.34));
+        linear-gradient(120deg, transparent 0 42%, rgba(194,22,50,.48) 42% 43%, transparent 43% 100%),
+        linear-gradient(28deg, transparent 0 54%, rgba(255,255,255,.10) 54% 55%, transparent 55% 100%),
+        radial-gradient(circle at 72% 20%, rgba(194,22,50,.36), transparent 210px);
+      animation: bgShift 8s ease-in-out infinite alternate;
     }
 
     .authHero::after {
-      content: "9";
+      content: "";
       position: absolute;
-      right: -18px;
-      top: 64px;
-      color: rgba(255,255,255,.09);
-      font-size: 220px;
-      line-height: .75;
-      font-weight: 1000;
+      right: 24px;
+      top: 92px;
+      width: 160px;
+      aspect-ratio: 1;
+      border: 2px solid rgba(255,255,255,.12);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, transparent 0 38%, rgba(194,22,50,.18) 39% 57%, transparent 58%),
+        conic-gradient(from 120deg, rgba(194,22,50,.75), rgba(255,255,255,.12), rgba(194,22,50,.75));
+      opacity: .72;
+      animation: rotateRing 18s linear infinite;
       pointer-events: none;
+    }
+
+    @keyframes bgShift {
+      from { transform: translate3d(-10px, -6px, 0) scale(1.02); }
+      to { transform: translate3d(10px, 8px, 0) scale(1.05); }
+    }
+
+    @keyframes rotateRing {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseLine {
+      0%, 100% { transform: scaleX(.22); opacity: .45; }
+      50% { transform: scaleX(1); opacity: 1; }
     }
 
     .authInner {
@@ -109,7 +127,7 @@
       width: fit-content;
       padding: 10px 12px;
       border: 1px solid rgba(255,255,255,.22);
-      background: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.08);
       border-radius: 8px;
       backdrop-filter: blur(10px);
     }
@@ -161,9 +179,20 @@
       font-weight: 800;
     }
 
+    .motionLine {
+      width: 180px;
+      height: 5px;
+      margin-top: 16px;
+      border-radius: 999px;
+      background: var(--red);
+      transform-origin: left center;
+      animation: pulseLine 2.4s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(194,22,50,.65);
+    }
+
     .authCard,
     .surface {
-      background: rgba(255,255,255,.96);
+      background: rgba(255,255,255,.97);
       color: var(--ink);
       border: 1px solid rgba(255,255,255,.52);
       border-radius: 10px;
@@ -206,7 +235,7 @@
     input:focus,
     select:focus {
       border-color: var(--red);
-      box-shadow: 0 0 0 4px rgba(215, 25, 32, .13);
+      box-shadow: 0 0 0 4px rgba(194, 22, 50, .13);
     }
 
     .fieldHint {
@@ -236,13 +265,13 @@
     .primaryButton {
       border: 0;
       color: #fff;
-      background: linear-gradient(180deg, #f0222a, #aa080e);
-      box-shadow: 0 7px 0 #6c0307;
+      background: linear-gradient(180deg, #d51b3a, #a20f28);
+      box-shadow: 0 7px 0 #70091b;
     }
 
     .primaryButton:active {
       transform: translateY(3px);
-      box-shadow: 0 4px 0 #6c0307;
+      box-shadow: 0 4px 0 #70091b;
     }
 
     .secondaryButton {
@@ -282,8 +311,8 @@
       padding: 16px 16px 14px;
       color: #fff;
       background:
-        linear-gradient(135deg, rgba(255,255,255,.13) 0 8px, transparent 8px 16px),
-        linear-gradient(180deg, #d71920, #7b050a);
+        linear-gradient(135deg, rgba(255,255,255,.10) 0 8px, transparent 8px 16px),
+        linear-gradient(180deg, #c21632, #74091a);
     }
 
     .headerTop {
@@ -670,16 +699,10 @@
             <span class="label">Week 1 テスト公開中</span>
             <h1>9周年<br>チャレンジ</h1>
             <p>ニックネームで参加できます。ランキングには個人が特定されない名前だけ表示されます。</p>
+            <div class="motionLine"></div>
           </div>
 
           <form class="authCard" id="loginForm">
-            <div class="miniPoster">
-              <img src="joyfit9-pop.png" alt="9周年イベントPOP">
-              <div>
-                <b>8/3(月) START</b>
-                <small>館内イベントの記録登録ページです。</small>
-              </div>
-            </div>
             <div class="pinRow">
               <label>
                 お名前
@@ -766,12 +789,12 @@
             <div class="message" id="entryMessage"></div>
           </form>
 
-          <div class="miniPoster">
-            <img src="joyfit9-pop.png" alt="9周年イベントPOP">
+          <div class="scoreGuide">
             <div>
               <b>参加するほどくじチャンスUP</b>
               <small>期間中のチャレンジ回数が抽選口数に反映されます。</small>
             </div>
+            <div class="unitBadge">抽選</div>
           </div>
         </div>
       </section>
@@ -918,7 +941,7 @@
           showMessage("entryMessage", data.message || "データを取得できませんでした。", false);
         }
       } catch (error) {
-        showMessage("entryMessage", "データ取得に失敗しました。GASの公開設定を確認してください。", false);
+        showMessage("entryMessage", "データ取得に失敗しました。GASの公開設定かデプロイ更新を確認してください。", false);
       }
       render();
     }
@@ -972,14 +995,14 @@
           String(form.get("pin") || "").trim()
         );
         if (!data.ok) {
-          showMessage("authMessage", data.message || "ログインできませんでした。", false);
+          showMessage("authMessage", data.message || "ログインできませんでした。4桁パスワードかGAS更新を確認してください。", false);
           return;
         }
         event.currentTarget.reset();
         await loadData();
         showMessage("entryMessage", "ログインしました。記録を入力できます。", true);
       } catch (error) {
-        showMessage("authMessage", "ログインに失敗しました。", false);
+        showMessage("authMessage", "ログインに失敗しました。Apps Scriptを新しいコードでデプロイ更新してください。", false);
       }
     });
 
