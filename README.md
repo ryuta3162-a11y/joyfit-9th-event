@@ -2,14 +2,21 @@
 
 ## 内容
 
-- `index.html`: スマホ向けの投稿フォーム兼ランキングページです。
+- `index.html`: スマホ向けのログイン制投稿フォーム兼ランキングページです。
 - `joyfit9-pop.png`: POP画像をページ上部に使う素材です。
 - `Code.gs`: Google Apps Scriptに貼り付けるスプレッドシート連携コードです。
 
+## 運用イメージ
+
+1. 店舗側で `participants` シートに参加者を登録します。
+2. 参加者はQRからページを開き、参加者IDと4桁PINでログインします。
+3. ログイン後、今週の種目の記録だけ入力して送信します。
+4. 送信データは `records` シートに入り、ランキングに反映されます。
+
 ## 画面の使い方
 
-1. `index.html` をブラウザで開くと、デモデータ付きで見た目を確認できます。
-2. 「記録を送信」からイニシャル、識別メモ、記録、区分を入力できます。
+1. 「記録を送信」で参加者IDと4桁PINを入力します。
+2. ログイン後、記録を入力して送信します。
 3. 「ランキング」で今週TOP10と過去WeekのTOP10を確認できます。
 
 ## GAS連携手順
@@ -17,9 +24,12 @@
 1. Googleスプレッドシートを開きます。
 2. `拡張機能 > Apps Script` を開きます。
 3. `Code.gs` の中身を貼り付けて保存します。
-4. `デプロイ > 新しいデプロイ > ウェブアプリ` を選びます。
-5. 実行ユーザーは「自分」、アクセス権は運用方針に合わせて「全員」または「リンクを知っている全員」にします。
-6. 発行されたウェブアプリURLを `index.html` の `CONFIG.gasEndpoint` に貼り付けます。
+4. エディタ上部の関数選択で `setupSheets` を選んで実行します。
+5. 初回だけGoogleの権限許可を行います。
+6. `participants` シートに参加者を登録します。
+7. `デプロイ > 新しいデプロイ > ウェブアプリ` を選びます。
+8. 実行ユーザーは「自分」、アクセス権は運用方針に合わせて「全員」または「リンクを知っている全員」にします。
+9. 発行されたウェブアプリURLを `index.html` の `CONFIG.gasEndpoint` に貼り付けます。
 
 ```js
 const CONFIG = {
@@ -31,11 +41,23 @@ const CONFIG = {
 
 今回のスプレッドシートIDは `Code.gs` の `SPREADSHEET_ID` に設定済みです。
 
-## スプレッドシート列
+## participants シート
 
-GASは `records` シートを自動作成し、次の列を使います。
+店舗側で管理するログイン用シートです。
 
-`id`, `createdAt`, `dateKey`, `displayName`, `participantKey`, `week`, `event`, `score`, `unit`, `division`, `proxyInput`, `userAgent`
+`participantId`, `displayName`, `pin`, `division`, `active`, `memo`, `createdAt`
+
+- `participantId`: 参加者IDです。例: `0001`
+- `displayName`: ランキング表示名です。例: `T.K`
+- `pin`: 4桁PINです。例: `1234`
+- `division`: `member` または `staff`
+- `active`: `TRUE` ならログイン可能
+
+## records シート
+
+送信された記録が入るシートです。
+
+`id`, `createdAt`, `dateKey`, `participantId`, `displayName`, `week`, `event`, `score`, `unit`, `division`, `inputBy`, `userAgent`
 
 ## 現在のルール
 
