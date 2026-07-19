@@ -48,6 +48,7 @@
     .app {
       position: relative;
       width: min(100%, 430px);
+      min-height: 100dvh;
       min-height: 100svh;
       margin: 0 auto;
       overflow: hidden;
@@ -82,19 +83,26 @@
 
     .bootMark strong {
       display: block;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
-      letter-spacing: .1em;
-      line-height: 1.1;
+      letter-spacing: .08em;
+      line-height: 1.15;
+      background: linear-gradient(100deg, #fff 10%, #ffd0d7 35%, #fff 50%, #ff8da0 75%, #fff 90%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: textShine 2.8s linear infinite;
     }
 
     .bootMark span {
       display: block;
-      margin-top: 8px;
-      color: #d0122d;
-      font-size: 20px;
+      margin-top: 10px;
+      color: #ff4d66;
+      font-size: 18px;
       font-weight: 900;
-      letter-spacing: .22em;
+      letter-spacing: .14em;
+      text-shadow: 0 0 18px rgba(208, 18, 45, .55);
     }
 
     .bootMark i {
@@ -112,14 +120,12 @@
     }
 
     .authInner.is-ready .brandBlock,
-    .authInner.is-ready .promoBoard,
-    .authInner.is-ready .loginBoard {
+    .authInner.is-ready .authStack {
       animation: riseIn .65s cubic-bezier(.22, 1, .36, 1) both;
     }
 
     .authInner.is-ready .brandBlock { animation-delay: .05s; }
-    .authInner.is-ready .promoBoard { animation-delay: .18s; }
-    .authInner.is-ready .loginBoard { animation-delay: .32s; }
+    .authInner.is-ready .authStack { animation-delay: .18s; }
 
     @keyframes riseIn {
       from { opacity: 0; transform: translateY(22px); }
@@ -129,11 +135,14 @@
     /* ===== AUTH ===== */
     .authHero {
       position: relative;
+      min-height: 100dvh;
       min-height: 100svh;
+      height: 100dvh;
+      height: 100svh;
       overflow: hidden;
       color: var(--ink);
       background:
-        linear-gradient(180deg, #fff 0%, #f7f4f2 48%, #f0ebe8 100%);
+        linear-gradient(180deg, #fff 0%, #f7f4f2 55%, #f0ebe8 100%);
     }
 
     .authHero::before {
@@ -142,7 +151,7 @@
       left: 0;
       right: 0;
       top: 0;
-      height: 42%;
+      height: min(38%, 280px);
       background:
         linear-gradient(145deg, #1a1a1c 0%, #141416 55%, #5a0c18 130%),
         repeating-linear-gradient(
@@ -150,7 +159,7 @@
           transparent 0 34px,
           rgba(208, 18, 45, .12) 34px 35px
         );
-      clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+      clip-path: polygon(0 0, 100% 0, 100% 82%, 0 100%);
       animation: arenaDrift 10s ease-in-out infinite alternate;
     }
 
@@ -175,56 +184,80 @@
     .authInner {
       position: relative;
       z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      box-sizing: border-box;
+      height: 100%;
+      min-height: 100%;
+      padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .authStack {
       display: grid;
-      align-content: start;
-      gap: 22px;
-      min-height: 100svh;
-      padding: 28px 20px 28px;
+      gap: 12px;
     }
 
     .brandBlock {
       display: grid;
-      gap: 10px;
+      gap: 8px;
       color: #fff;
-      padding-bottom: 8px;
+      padding-bottom: 4px;
     }
 
     .brandBlock .store {
       margin: 0;
-      font-size: clamp(40px, 11vw, 48px);
-      line-height: 1.05;
+      font-size: clamp(34px, 9.5vw, 42px);
+      line-height: 1.12;
       font-weight: 900;
-      letter-spacing: .04em;
-      text-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+      letter-spacing: .06em;
     }
 
-    .brandBlock .store span {
-      display: block;
-      color: #ff4d66;
+    .brandBlock .store .glow {
+      display: inline-block;
+      background: linear-gradient(100deg, #fff 10%, #ffd0d7 35%, #fff 50%, #ff8da0 75%, #fff 90%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: none;
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,.35)) drop-shadow(0 8px 18px rgba(208,18,45,.35));
+      animation: textShine 3.8s linear infinite;
     }
 
-    .brandBlock .anniversary {
+    .brandBlock .eventTitle {
       margin: 0;
-      color: rgba(255, 255, 255, .78);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-    }
-
-    @keyframes brandRise {
-      from { opacity: 0; transform: translateY(18px); }
-      to { opacity: 1; transform: none; }
+      font-size: clamp(22px, 6.2vw, 28px);
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #ff4d66;
+      text-shadow:
+        0 1px 0 #7a0a18,
+        0 2px 0 #5c0712,
+        0 10px 24px rgba(208, 18, 45, .45);
+      animation: titlePulse 2.8s ease-in-out infinite;
     }
 
     .authPulse {
       width: 88px;
       height: 3px;
-      margin-top: 8px;
+      margin-top: 10px;
       background: var(--red);
       transform-origin: left center;
       animation: pulseLine 2.6s ease-in-out infinite;
       box-shadow: 0 0 18px rgba(208, 18, 45, .7);
+    }
+
+    @keyframes textShine {
+      0% { background-position: 0% center; }
+      100% { background-position: 220% center; }
+    }
+
+    @keyframes titlePulse {
+      0%, 100% { filter: brightness(1); transform: translateY(0); }
+      50% { filter: brightness(1.15); transform: translateY(-1px); }
     }
 
     @keyframes pulseLine {
@@ -233,57 +266,55 @@
     }
 
     .promoBoard {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      margin-top: 8px;
-      border: 2px solid var(--ink);
-      background: #fff;
-      box-shadow: 8px 8px 0 rgba(208, 18, 45, .18);
+      margin-top: 0;
+      padding: 14px 14px 14px 18px;
+      border: 1px solid rgba(18, 18, 18, .1);
+      background:
+        linear-gradient(135deg, rgba(208,18,45,.06), transparent 42%),
+        #fff;
+      box-shadow: 0 10px 24px rgba(40, 20, 20, .07);
+      position: relative;
+      overflow: hidden;
     }
 
-    .promoBoard .promoCol {
-      display: grid;
-      align-content: center;
-      gap: 6px;
-      min-height: 112px;
-      padding: 16px 14px;
+    .promoBoard::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #ff4d66, #d0122d);
+      box-shadow: 0 0 16px rgba(208, 18, 45, .55);
     }
 
-    .promoBoard .promoCol + .promoCol {
-      border-left: 2px solid var(--ink);
-      background: linear-gradient(180deg, #fff 0%, #fff5f6 100%);
-    }
-
-    .promoBoard .promoCol b {
+    .promoBoard p {
+      margin: 0;
       font-size: 15px;
-      line-height: 1.35;
+      line-height: 1.65;
       font-weight: 900;
-      letter-spacing: .01em;
+      letter-spacing: .02em;
     }
 
-    .promoBoard .promoCol span {
+    .promoBoard .accent {
       color: var(--red);
-      font-size: 15px;
-      line-height: 1.35;
-      font-weight: 900;
-    }
-
-    .promoBoard .promoCol small {
-      color: var(--mute);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .06em;
+      background: linear-gradient(100deg, #d0122d, #ff5a73, #d0122d, #ff8da0);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: textShine 3.2s linear infinite;
+      filter: drop-shadow(0 1px 0 rgba(120, 10, 24, .25));
     }
 
     .loginBoard {
       display: grid;
-      gap: 14px;
-      margin-top: 4px;
-      padding: 18px 16px 16px;
+      gap: 12px;
+      margin-top: 0;
+      padding: 14px 14px 12px;
       border: 1px solid rgba(18, 18, 18, .1);
       background: #fff;
-      box-shadow: 0 16px 36px rgba(40, 20, 20, .08);
+      box-shadow: 0 10px 24px rgba(40, 20, 20, .07);
     }
 
     .loginBoard label {
@@ -305,8 +336,8 @@
 
     .loginBoard input {
       width: 100%;
-      min-height: 54px;
-      padding: 12px 14px;
+      min-height: 48px;
+      padding: 10px 12px;
       border: 0;
       border-bottom: 2px solid rgba(18, 18, 18, .28);
       border-radius: 0;
@@ -349,8 +380,8 @@
 
     .primaryButton {
       width: 100%;
-      min-height: 56px;
-      margin-top: 4px;
+      min-height: 52px;
+      margin-top: 2px;
       border: 0;
       border-radius: 2px;
       color: #fff;
@@ -443,20 +474,58 @@
 
     .headerBrand .eyebrow {
       display: block;
-      color: rgba(255, 255, 255, .62);
+      font-size: 15px;
       font-weight: 900;
-      font-size: 14px;
-      letter-spacing: .18em;
+      letter-spacing: .08em;
+      line-height: 1.2;
     }
 
-    .headerBrand b {
+    .headerBrand .eyebrow .glow {
+      display: inline-block;
+      background: linear-gradient(100deg, #fff 10%, #ffd0d7 35%, #fff 50%, #ff8da0 75%, #fff 90%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,.28)) drop-shadow(0 6px 14px rgba(208,18,45,.3));
+      animation: textShine 3.8s linear infinite;
+    }
+
+    .headerBrand .eventTitle {
       display: block;
-      margin-top: 4px;
+      margin-top: 5px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      color: #ff4d66;
+      text-shadow:
+        0 1px 0 #7a0a18,
+        0 2px 0 #5c0712,
+        0 8px 18px rgba(208, 18, 45, .4);
+      animation: titlePulse 2.8s ease-in-out infinite;
+    }
+
+    .headerUser {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.82);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    .headerUser #accountName {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 900;
+      color: #fff;
     }
 
     .logout {
@@ -827,8 +896,12 @@
     }
 
     @media (max-width: 380px) {
-      .authInner { padding: 22px 16px 18px; gap: 22px; }
-      .brandBlock .store { font-size: 36px; }
+      .authInner { padding: 14px 14px 12px; gap: 10px; }
+      .brandBlock .store { font-size: 30px; }
+      .brandBlock .eventTitle { font-size: 20px; }
+      .promoBoard { padding: 12px 12px 12px 16px; }
+      .promoBoard p { font-size: 14px; line-height: 1.5; }
+      .loginBoard { padding: 12px; gap: 10px; }
       .eventBoard strong { font-size: 40px; }
       .entryBoard input { font-size: 36px; }
     }
@@ -838,8 +911,8 @@
   <main class="app">
     <div class="bootOverlay" id="bootOverlay" aria-hidden="false">
       <div class="bootMark">
-        <strong>JOYFIT24</strong>
-        <span>経堂</span>
+        <strong>JOYFIT24 経堂</strong>
+        <span>9周年イベント</span>
         <i aria-hidden="true"></i>
       </div>
     </div>
@@ -847,34 +920,29 @@
       <div class="authHero">
         <div class="authInner" id="authInner">
           <div class="brandBlock">
-            <p class="anniversary">9th Anniversary Challenge</p>
-            <p class="store">JOYFIT24<br><span>経堂</span></p>
+            <p class="store"><span class="glow">JOYFIT24 経堂</span></p>
+            <p class="eventTitle">9周年イベント</p>
             <div class="authPulse" aria-hidden="true"></div>
           </div>
 
-          <div class="promoBoard" aria-label="チャレンジ案内">
-            <div class="promoCol">
-              <small>RULE</small>
-              <b>1週間で最大<br>3回チャレンジ！</b>
+          <div class="authStack">
+            <div class="promoBoard" aria-label="チャレンジ案内">
+              <p>1週間で最大3回チャレンジ！<br>参加するほど<span class="accent">くじのチャンスUP！</span></p>
             </div>
-            <div class="promoCol">
-              <small>BONUS</small>
-              <b>参加するほど<br><span>くじのチャンスUP！</span></b>
-            </div>
-          </div>
 
-          <form class="loginBoard" id="loginForm">
-            <label>
-              ニックネーム
-              <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
-            </label>
-            <label>
-              4桁パスワード
-              <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
-            </label>
-            <button class="primaryButton" type="submit" id="loginButton">ログイン</button>
-            <div class="message" id="authMessage"></div>
-          </form>
+            <form class="loginBoard" id="loginForm">
+              <label>
+                ニックネーム
+                <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
+              </label>
+              <label>
+                4桁パスワード
+                <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
+              </label>
+              <button class="primaryButton" type="submit" id="loginButton">ログイン</button>
+              <div class="message" id="authMessage"></div>
+            </form>
+          </div>
         </div>
       </div>
     </section>
@@ -883,16 +951,19 @@
       <header class="shellHeader">
         <div class="headerTop">
           <div class="headerBrand">
-            <span class="eyebrow">JOYFIT24 経堂</span>
-            <b id="accountName">ゲスト</b>
+            <span class="eyebrow"><span class="glow">JOYFIT24 経堂</span></span>
+            <b class="eventTitle">9周年イベント</b>
           </div>
           <button class="logout" type="button" id="logoutButton">ログアウト</button>
+        </div>
+        <div class="headerUser">
+          <span id="accountName">ゲスト</span>
+          <span id="accountMeta">会員</span>
         </div>
 
         <div class="eventBoard">
           <div class="eventMeta">
             <span id="weekNo">Week 1</span>
-            <span id="accountMeta">会員</span>
           </div>
           <strong id="currentEvent">握力測定</strong>
           <div class="period" id="currentPeriod">8/3(月) - 8/9(日)</div>
@@ -1097,7 +1168,7 @@
       return api({ action: "submit", token: state.session.token || "", payload: JSON.stringify(body) });
     }
 
-    function api(params) {
+    function apiOnce(params) {
       return new Promise((resolve, reject) => {
         const callbackName = `joyfitCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const script = document.createElement("script");
@@ -1106,7 +1177,7 @@
           reject(new Error("request timeout"));
           script.remove();
           delete window[callbackName];
-        }, 25000);
+        }, 35000);
         window[callbackName] = data => {
           window.clearTimeout(timeoutId);
           resolve(data);
@@ -1122,6 +1193,19 @@
         script.src = `${CONFIG.gasEndpoint}?${search.toString()}`;
         document.body.appendChild(script);
       });
+    }
+
+    async function api(params, retries = 1) {
+      let lastError;
+      for (let i = 0; i <= retries; i += 1) {
+        try {
+          return await apiOnce(params);
+        } catch (error) {
+          lastError = error;
+          if (i < retries) await new Promise(r => window.setTimeout(r, 700));
+        }
+      }
+      throw lastError;
     }
 
     document.querySelectorAll(".tabButton").forEach(button => {
@@ -1165,7 +1249,7 @@
         setBusyLoading(false);
         if (state.session && state.session.token) {
           render();
-          showMessage("entryMessage", "ログインはできました。通信が不安定なため、ランキングの再読み込みをお試しください。", false);
+          showMessage("entryMessage", "ログインしました。ランキングは少し遅れて表示されることがあります。", true);
         } else {
           showMessage("authMessage", "ログイン情報を保存できませんでした。もう一度入力してください。", false);
         }
@@ -1319,7 +1403,7 @@
     playBootSequence();
     if (state.session) {
       loadData({ silent: true }).catch(() => {
-        showMessage("entryMessage", "データ取得に失敗しました。通信状況を確認してください。", false);
+        showMessage("entryMessage", "ランキングの読み込みに時間がかかっています。しばらくしてから再度お試しください。", false);
       });
     }
   </script>
