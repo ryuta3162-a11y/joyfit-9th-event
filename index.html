@@ -52,74 +52,7 @@
     .view { display: none; }
     .view.active { display: block; }
 
-    .bootOverlay {
-      position: absolute;
-      inset: 0;
-      z-index: 30;
-      display: grid;
-      place-items: center;
-      background: #0e0e10;
-      transition: opacity .55s ease, visibility .55s ease;
-    }
 
-    .bootOverlay.is-done {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .bootMark {
-      text-align: center;
-      color: #fff;
-      animation: bootPulse 1s ease both;
-    }
-
-    .bootMark strong {
-      display: block;
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      line-height: 1.15;
-      color: #fff;
-      animation: softFade 1.6s ease-in-out infinite alternate;
-    }
-
-    .bootMark span {
-      display: block;
-      margin-top: 8px;
-      color: #ff4d66;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: .12em;
-      animation: softFade 1.6s ease-in-out .2s infinite alternate;
-    }
-
-    .bootMark i {
-      display: block;
-      width: 48px;
-      height: 3px;
-      margin: 16px auto 0;
-      background: #d0122d;
-      animation: pulseLine 1.2s ease-in-out infinite;
-    }
-
-    @keyframes bootPulse {
-      from { opacity: 0; transform: scale(.92); }
-      to { opacity: 1; transform: none; }
-    }
-
-    .authInner.is-ready .brandBlock,
-    .authInner.is-ready .authStack {
-      animation: riseIn .65s cubic-bezier(.22, 1, .36, 1) both;
-    }
-
-    .authInner.is-ready .brandBlock { animation-delay: .05s; }
-    .authInner.is-ready .authStack { animation-delay: .18s; }
-
-    @keyframes riseIn {
-      from { opacity: 0; transform: translateY(22px); }
-      to { opacity: 1; transform: none; }
-    }
 
     /* ===== AUTH ===== */
     .authHero {
@@ -179,15 +112,6 @@
       letter-spacing: .06em;
       color: var(--red);
       animation: softFade 2s ease-in-out .15s infinite alternate;
-    }
-
-    .authPulse {
-      width: 56px;
-      height: 3px;
-      margin-top: 8px;
-      background: var(--red);
-      transform-origin: left center;
-      animation: pulseLine 2.4s ease-in-out infinite;
     }
 
     @keyframes softFade {
@@ -539,36 +463,59 @@
 
     .scoreStage {
       display: grid;
-      gap: 6px;
-      padding: 8px 0 4px;
+      gap: 0;
+      padding: 18px 0;
       border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
     }
 
-    .scoreStage .guide {
+    .scoreTap {
       display: flex;
       align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      cursor: text;
     }
 
-    .scoreStage b {
-      font-size: 22px;
+    .scoreTap #guideEvent {
+      font-size: 18px;
       font-weight: 900;
+      white-space: nowrap;
     }
 
-    .scoreStage .unit {
-      font-weight: 900;
-      font-size: 28px;
-      letter-spacing: .04em;
+    .scoreTap input[name="score"] {
+      width: 2.4em;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      border-bottom: 2px solid var(--ink);
+      border-radius: 0;
+      background: transparent;
       color: var(--red);
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-align: center;
+      outline: none;
     }
 
-    .scoreStage small {
-      color: var(--mute);
-      font-size: 12px;
-      line-height: 1.55;
-      font-weight: 500;
+    .scoreTap input[name="score"]::placeholder {
+      color: rgba(18, 18, 18, .22);
+      font-size: 36px;
+    }
+
+    .scoreTap input[name="score"]:focus {
+      border-bottom-color: var(--red);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .scoreTap #unitBadge {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--ink);
+      white-space: nowrap;
     }
 
     .formGrid {
@@ -586,28 +533,7 @@
       letter-spacing: .08em;
     }
 
-    .entryBoard input {
-      font-weight: 900;
-      border: 0;
-      border-bottom: 2px solid var(--ink);
-      background: transparent;
-      color: var(--ink);
-      font-size: 42px;
-      letter-spacing: .04em;
-      min-height: 72px;
-      padding: 8px 0;
-    }
 
-    .entryBoard input::placeholder {
-      color: rgba(18, 18, 18, .22);
-      font-size: 34px;
-    }
-
-    .entryBoard input:focus {
-      border-bottom-color: var(--red);
-      background: transparent;
-      box-shadow: none;
-    }
 
     .ranking {
       display: grid;
@@ -726,27 +652,24 @@
       display: none;
       place-items: center;
       padding: 22px;
-      background: rgba(6, 6, 7, .82);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, .88);
     }
 
     .loadingOverlay.show { display: grid; }
 
     .loadingPanel {
-      width: min(100%, 320px);
-      padding: 28px 22px;
-      border-top: 3px solid var(--red);
-      background: #0e0e10;
-      color: #fff;
+      width: min(100%, 240px);
+      padding: 28px 18px;
+      background: #fff;
+      color: var(--ink);
       text-align: center;
-      box-shadow: var(--shadow);
     }
 
     .loaderRing {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 18px;
-      border: 3px solid rgba(255, 255, 255, .12);
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 14px;
+      border: 3px solid rgba(18, 18, 18, .12);
       border-top-color: var(--red);
       border-radius: 50%;
       animation: spin .8s linear infinite;
@@ -758,38 +681,17 @@
 
     .loadingPanel strong {
       display: block;
-      font-size: 18px;
-      font-weight: 900;
+      font-size: 14px;
+      font-weight: 700;
       letter-spacing: .08em;
+      color: var(--mute);
     }
 
-    .loadingPanel p {
-      margin: 8px 0 18px;
-      color: rgba(255, 255, 255, .65);
-      font-size: 13px;
-      line-height: 1.55;
-      font-weight: 500;
-    }
-
-    .progressTrack {
-      height: 3px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, .12);
-    }
-
-    .progressBar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #fff, var(--red));
-      transition: width .18s ease;
-    }
-
+    .loadingPanel p,
+    .progressTrack,
+    .progressBar,
     .progressText {
-      margin-top: 10px;
-      color: rgba(255, 255, 255, .85);
-      font-weight: 900;
-      font-size: 18px;
-      letter-spacing: .08em;
+      display: none;
     }
 
     @media (max-width: 380px) {
@@ -799,26 +701,18 @@
       .promoBoard p { font-size: 13px; line-height: 1.5; }
       .loginBoard { gap: 10px; }
       .eventBoard strong { font-size: 40px; }
-      .entryBoard input { font-size: 36px; }
+      .scoreTap input[name="score"] { font-size: 36px; }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <div class="bootOverlay" id="bootOverlay" aria-hidden="false">
-      <div class="bootMark">
-        <strong>JOYFIT24 経堂</strong>
-        <span>9周年イベント</span>
-        <i aria-hidden="true"></i>
-      </div>
-    </div>
     <section class="view active" id="authView">
       <div class="authHero">
         <div class="authInner" id="authInner">
           <div class="brandBlock">
             <p class="store"><span class="glow">JOYFIT24 経堂</span></p>
             <p class="eventTitle">9周年イベント</p>
-            <div class="authPulse" aria-hidden="true"></div>
           </div>
 
           <div class="authStack">
@@ -873,18 +767,14 @@
 
       <section class="section active" id="entryPanel">
         <div class="entryBoard">
-          <div class="scoreStage">
-            <div class="guide">
-              <b id="guideEvent">握力測定</b>
-              <span class="unit" id="unitBadge">kg</span>
-            </div>
-          </div>
-
           <form class="formGrid" id="entryForm">
-            <label>
-              記録
-              <input name="score" inputmode="decimal" placeholder="55.0" required>
-            </label>
+            <div class="scoreStage">
+              <label class="scoreTap" for="scoreInput">
+                <span id="guideEvent">握力測定</span>
+                <input id="scoreInput" name="score" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" placeholder="--" required>
+                <span id="unitBadge">kg</span>
+              </label>
+            </div>
             <button class="primaryButton" type="submit">記録を送信する</button>
             <div class="message" id="entryMessage"></div>
           </form>
@@ -914,10 +804,7 @@
     <div class="loadingOverlay" id="loadingOverlay" aria-live="polite" aria-hidden="true">
       <div class="loadingPanel">
         <div class="loaderRing" aria-hidden="true"></div>
-        <strong id="loadingTitle">処理中です</strong>
-        <p id="loadingDetail">お待ちください。</p>
-        <div class="progressTrack"><div class="progressBar" id="progressBar"></div></div>
-        <div class="progressText" id="progressText">0%</div>
+        <strong id="loadingTitle">読み込み中</strong>
       </div>
     </div>
   </main>
@@ -975,6 +862,7 @@
       document.getElementById("guideEvent").textContent = current.event;
       document.getElementById("unitBadge").textContent = current.unit;
       document.getElementById("unitLabel").textContent = `合計 ${current.unit}`;
+      applyScoreInputRules();
       renderRanking("rankingList", current.week);
       renderWeekChips();
       renderRanking("historyList", state.selectedWeek);
@@ -1024,13 +912,8 @@
         if (data.ok) {
           state.records = data.records || [];
           state.rankings = data.rankings || {};
-        } else if (!silent) {
-          showMessage("entryMessage", data.message || "データを取得できませんでした。", false);
         }
       } catch (error) {
-        if (!silent) {
-          showMessage("entryMessage", "データ取得に失敗しました。GASの公開設定かデプロイ更新を確認してください。", false);
-        }
         throw error;
       } finally {
         render();
@@ -1117,10 +1000,7 @@
       const button = document.getElementById("loginButton");
       showMessage("authMessage", "", true);
       button.disabled = true;
-      setBusyLoading(true, {
-        title: "ログイン中です",
-        detail: "参加情報を確認しています。"
-      });
+      setBusyLoading(true);
       try {
         const data = await login(
           String(form.get("nickname") || "").trim(),
@@ -1128,30 +1008,36 @@
         );
         if (!data.ok) {
           setBusyLoading(false);
-          showMessage("authMessage", data.message || "ログインできませんでした。ニックネームと4桁パスワードを確認してください。", false);
+          showMessage("authMessage", data.message || "ログインできませんでした。", false);
           return;
         }
 
         render();
-        setBusyLoading(true, {
-          title: "読み込み中です",
-          detail: `${getCurrentWeek().event}の画面を準備しています。`
-        });
+        applyScoreInputRules();
         event.currentTarget.reset();
-        await loadData({ silent: true });
-        await finishBusyLoading();
-        showMessage("entryMessage", "ログインしました。記録を入力できます。", true);
+        try {
+          await loadData({ silent: true });
+        } catch (_) {
+          render();
+        }
+        setBusyLoading(false);
       } catch (error) {
         setBusyLoading(false);
         if (state.session && state.session.token) {
           render();
-          showMessage("entryMessage", "ログインしました。ランキングは少し遅れて表示されることがあります。", true);
+          applyScoreInputRules();
         } else {
-          showMessage("authMessage", "ログイン情報を保存できませんでした。もう一度入力してください。", false);
+          showMessage("authMessage", "ログインできませんでした。", false);
         }
       } finally {
         button.disabled = false;
       }
+    });
+
+    document.getElementById("scoreInput").addEventListener("input", event => {
+      const current = getCurrentWeek();
+      if (current.week !== 1) return;
+      event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 2);
     });
 
     document.getElementById("entryForm").addEventListener("submit", async event => {
@@ -1159,23 +1045,30 @@
       const form = new FormData(event.currentTarget);
       const current = getCurrentWeek();
       const button = event.currentTarget.querySelector('button[type="submit"]');
-      const payload = {
-        week: current.week,
-        event: current.event,
-        score: Number(form.get("score")),
-        unit: current.unit,
-        inputBy: "self"
-      };
-      if (!Number.isFinite(payload.score)) {
-        showMessage("entryMessage", "記録を数字で入力してください。", false);
+      const raw = String(form.get("score") || "").trim();
+      const score = Number(raw);
+      showMessage("entryMessage", "", true);
+
+      if (current.week === 1) {
+        if (!/^[0-9]{1,2}$/.test(raw) || score < 1 || score > 99) {
+          showMessage("entryMessage", "1〜99の数字で入力してください。", false);
+          return;
+        }
+      } else if (!Number.isFinite(score)) {
+        showMessage("entryMessage", "数字で入力してください。", false);
         return;
       }
 
+      const payload = {
+        week: current.week,
+        event: current.event,
+        score,
+        unit: current.unit,
+        inputBy: "self"
+      };
+
       button.disabled = true;
-      setBusyLoading(true, {
-        title: "記録を送信中です",
-        detail: `${current.event}の記録を登録しています。`
-      });
+      setBusyLoading(true);
       try {
         const result = await submitRecord(payload);
         if (!result.ok) {
@@ -1183,27 +1076,13 @@
           showMessage("entryMessage", result.message || "送信できませんでした。", false);
           return;
         }
-        setBusyLoading(true, {
-          title: "反映しています",
-          detail: "ランキングを更新しています。"
-        });
         event.currentTarget.reset();
-        await loadData({ silent: true });
-        await finishBusyLoading();
-        const attemptLabel = result.record && result.record.attempt
-          ? `${result.record.attempt}回目の記録を登録しました。`
-          : "送信完了。ランキングに反映しました。";
-        showMessage("entryMessage", attemptLabel, true);
+        applyScoreInputRules();
+        try { await loadData({ silent: true }); } catch (_) {}
+        setBusyLoading(false);
       } catch (error) {
-        // GAS側は成功していることが多いので、再取得できたら成功扱いにする
-        try {
-          await loadData({ silent: true });
-          await finishBusyLoading();
-          showMessage("entryMessage", "記録を受け付けました。", true);
-        } catch (_) {
-          setBusyLoading(false);
-          showMessage("entryMessage", "送信に失敗しました。もう一度お試しください。", false);
-        }
+        try { await loadData({ silent: true }); } catch (_) {}
+        setBusyLoading(false);
       } finally {
         button.disabled = false;
       }
@@ -1231,50 +1110,33 @@
       el.className = `message show ${ok ? "ok" : "err"}`;
     }
 
-    let loadingTimer = null;
-    let loadingPercent = 0;
-
-    function setBusyLoading(active, copy = {}) {
+    function setBusyLoading(active) {
       const overlay = document.getElementById("loadingOverlay");
       if (active) {
-        if (copy.title) document.getElementById("loadingTitle").textContent = copy.title;
-        if (copy.detail) document.getElementById("loadingDetail").textContent = copy.detail;
-        const alreadyOpen = overlay.classList.contains("show");
         overlay.classList.add("show");
         overlay.setAttribute("aria-hidden", "false");
-        if (!alreadyOpen) {
-          loadingPercent = 0;
-          updateProgress(0);
-        }
-        window.clearInterval(loadingTimer);
-        loadingTimer = window.setInterval(() => {
-          const next = loadingPercent < 70 ? loadingPercent + 8 : loadingPercent + 2;
-          updateProgress(Math.min(next, 92));
-        }, 180);
         return;
       }
-      window.clearInterval(loadingTimer);
-      loadingTimer = null;
       overlay.classList.remove("show");
       overlay.setAttribute("aria-hidden", "true");
-      updateProgress(0);
     }
 
-    function finishBusyLoading() {
-      return new Promise(resolve => {
-        window.clearInterval(loadingTimer);
-        updateProgress(100);
-        window.setTimeout(() => {
-          setBusyLoading(false);
-          resolve();
-        }, 280);
-      });
-    }
-
-    function updateProgress(value) {
-      loadingPercent = value;
-      document.getElementById("progressBar").style.width = `${value}%`;
-      document.getElementById("progressText").textContent = `${Math.round(value)}%`;
+    function applyScoreInputRules() {
+      const input = document.getElementById("scoreInput");
+      if (!input) return;
+      const current = getCurrentWeek();
+      if (current.week === 1) {
+        input.inputMode = "numeric";
+        input.maxLength = 2;
+        input.pattern = "[0-9]{1,2}";
+        input.placeholder = "--";
+        input.removeAttribute("step");
+      } else {
+        input.inputMode = "decimal";
+        input.maxLength = 5;
+        input.pattern = "[0-9.]*";
+        input.placeholder = "--";
+      }
     }
 
     function formatScore(value) {
@@ -1285,22 +1147,10 @@
       return String(value).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[s]));
     }
 
-    function playBootSequence() {
-      const overlay = document.getElementById("bootOverlay");
-      const authInner = document.getElementById("authInner");
-      window.setTimeout(() => {
-        overlay.classList.add("is-done");
-        overlay.setAttribute("aria-hidden", "true");
-        if (authInner) authInner.classList.add("is-ready");
-      }, 900);
-    }
-
     render();
-    playBootSequence();
+    applyScoreInputRules();
     if (state.session) {
-      loadData({ silent: true }).catch(() => {
-        showMessage("entryMessage", "ランキングの読み込みに時間がかかっています。しばらくしてから再度お試しください。", false);
-      });
+      loadData({ silent: true }).catch(() => {});
     }
   </script>
 </body>

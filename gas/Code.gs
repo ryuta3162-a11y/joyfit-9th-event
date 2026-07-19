@@ -111,7 +111,13 @@ function upsertRecord(token, body, eventObject) {
     const score = Number(body.score);
     const inputBy = body.inputBy === 'staff' ? 'staff' : 'self';
     if (!Number.isFinite(score)) return { ok: false, message: '記録を数字で入力してください。' };
-    if (score < -1000 || score > 10000) return { ok: false, message: '記録の数値を確認してください。' };
+    if (week.week === 1) {
+      if (!Number.isInteger(score) || score < 1 || score > 99) {
+        return { ok: false, message: '握力は1〜99の数字で入力してください。' };
+      }
+    } else if (score < -1000 || score > 10000) {
+      return { ok: false, message: '記録の数値を確認してください。' };
+    }
 
     const now = new Date();
     const dateKey = Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy-MM-dd');
