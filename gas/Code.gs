@@ -1,19 +1,38 @@
 const SPREADSHEET_ID = '1hQKe60-qL4NlEzA_bWEXt9M9kv8JURaGDRP4IhDBMEY';
-const PARTICIPANTS_SHEET = 'participants';
-const RECORDS_SHEET = 'records';
-const SESSIONS_SHEET = 'sessions';
+const PARTICIPANTS_SHEET = '参加者';
+const SESSIONS_SHEET = 'セッション';
+const LEGACY_PARTICIPANTS_SHEET = 'participants';
+const LEGACY_SESSIONS_SHEET = 'sessions';
+const LEGACY_RECORDS_SHEET = 'records';
 const TEST_WEEK_OVERRIDE = 1;
 
 const EVENT_WEEKS = [
-  { week: 1, event: '握力測定', unit: 'kg', start: '2026-08-03', end: '2026-08-09', higherIsBetter: true },
-  { week: 2, event: '前屈', unit: 'cm', start: '2026-08-10', end: '2026-08-16', higherIsBetter: true },
-  { week: 3, event: 'プランク', unit: '秒', start: '2026-08-17', end: '2026-08-23', higherIsBetter: true },
-  { week: 4, event: '腕立て伏せ', unit: '回', start: '2026-08-24', end: '2026-08-30', higherIsBetter: true },
+  { week: 1, event: '握力測定', sheet: '握力測定', unit: 'kg', start: '2026-08-03', end: '2026-08-09', higherIsBetter: true },
+  { week: 2, event: '前屈', sheet: '前屈', unit: 'cm', start: '2026-08-10', end: '2026-08-16', higherIsBetter: true },
+  { week: 3, event: 'プランク', sheet: 'プランク', unit: '秒', start: '2026-08-17', end: '2026-08-23', higherIsBetter: true },
+  { week: 4, event: '腕立て伏せ', sheet: '腕立て伏せ', unit: '回', start: '2026-08-24', end: '2026-08-30', higherIsBetter: true },
 ];
 
+// A〜O: E列=表示名, H/I/J列=1〜3回目スコア
 const PARTICIPANT_HEADERS = ['participantId', 'nickname', 'pin', 'division', 'active', 'memo', 'createdAt', 'updatedAt'];
-const RECORD_HEADERS = ['id', 'createdAt', 'dateKey', 'participantId', 'displayName', 'week', 'event', 'score', 'unit', 'division', 'inputBy', 'userAgent'];
 const SESSION_HEADERS = ['token', 'participantId', 'createdAt', 'expiresAt'];
+const EVENT_HEADERS = [
+  'participantId', // A
+  'createdAt',     // B
+  'updatedAt',     // C
+  'division',      // D
+  'displayName',   // E
+  'unit',          // F
+  'attempts',      // G
+  'score1',        // H
+  'score2',        // I
+  'score3',        // J
+  'date1',         // K
+  'date2',         // L
+  'date3',         // M
+  'inputBy',       // N
+  'userAgent',     // O
+];
 
 function doGet(e) {
   const params = e && e.parameter ? e.parameter : {};
@@ -24,7 +43,7 @@ function doGet(e) {
     if (action === 'login') return jsonResponse(login(params.nickname, params.pin), e);
     if (action === 'submit') {
       const body = JSON.parse(String(params.payload || '{}'));
-      return jsonResponse(appendRecord(params.token, body, e), e);
+      return jsonResponse(upsertRecord(params.token, body, e), e);
     }
     return jsonResponse(readPublicState(), e);
   } catch (error) {
@@ -33,15 +52,21 @@ function doGet(e) {
 }
 
 function setupSheets() {
+  renameLegacySheetIfNeeded(LEGACY_PARTICIPANTS_SHEET, PARTICIPANTS_SHEET);
+  renameLegacySheetIfNeeded(LEGACY_SESSIONS_SHEET, SESSIONS_SHEET);
+
   ensureSheet(PARTICIPANTS_SHEET, PARTICIPANT_HEADERS);
-  ensureSheet(RECORDS_SHEET, RECORD_HEADERS);
   ensureSheet(SESSIONS_SHEET, SESSION_HEADERS);
+  EVENT_WEEKS.forEach(week => ensureSheet(week.sheet, EVENT_HEADERS));
+
   const now = new Date().toISOString();
   const participants = getSheet(PARTICIPANTS_SHEET);
   if (participants.getLastRow() < 2) {
     participants.appendRow([Utilities.getUuid(), 'テスト', '1111', 'member', true, '動作確認用', now, now]);
     participants.appendRow([Utilities.getUuid(), 'STAFF', '9999', 'staff', true, 'スタッフ確認用', now, now]);
   }
+
+  migrateLegacyRecordsIfNeeded();
   return { ok: true, message: 'シートを準備しました。' };
 }
 
@@ -74,7 +99,7 @@ function login(nickname, pin) {
   };
 }
 
-function appendRecord(token, body, eventObject) {
+function upsertRecord(token, body, eventObject) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
@@ -90,54 +115,74 @@ function appendRecord(token, body, eventObject) {
 
     const now = new Date();
     const dateKey = Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy-MM-dd');
-    const records = getRecords();
-    const samePersonWeek = records.filter(r => Number(r.week) === week.week && r.participantId === participant.participantId);
-    if (samePersonWeek.length >= 3) return { ok: false, message: 'この週のチャレンジはすでに3回分登録されています。' };
-    if (samePersonWeek.some(r => r.dateKey === dateKey)) return { ok: false, message: '同じ日の登録は1回までです。' };
+    const sheet = getSheet(week.sheet);
+    const rows = readEventRows(week);
+    const existing = rows.find(r => r.participantId === participant.participantId);
+    const dates = existing ? [existing.date1, existing.date2, existing.date3] : [];
+    const scores = existing ? [existing.score1, existing.score2, existing.score3] : [];
+    const filled = scores.filter(value => Number.isFinite(value)).length;
 
-    const record = {
-      id: Utilities.getUuid(),
-      createdAt: now.toISOString(),
-      dateKey,
-      participantId: participant.participantId,
-      displayName: participant.nickname,
-      week: week.week,
-      event: week.event,
-      score,
-      unit: week.unit,
-      division: participant.division,
-      inputBy,
-      userAgent: eventObject && eventObject.parameter ? String(eventObject.parameter.userAgent || '') : '',
-    };
+    if (filled >= 3) return { ok: false, message: 'この週のチャレンジはすでに3回分登録されています。' };
+    if (dates.some(value => value === dateKey)) return { ok: false, message: '同じ日の登録は1回までです。' };
 
-    getSheet(RECORDS_SHEET).appendRow([
-      record.id,
-      record.createdAt,
-      dateKey,
-      record.participantId,
-      record.displayName,
-      record.week,
-      record.event,
-      score,
-      record.unit,
-      record.division,
-      record.inputBy,
-      record.userAgent,
-    ]);
+    const slot = filled; // 0,1,2
+    const userAgent = eventObject && eventObject.parameter ? String(eventObject.parameter.userAgent || '') : '';
+    const isoNow = now.toISOString();
+
+    if (!existing) {
+      const row = [
+        participant.participantId,
+        isoNow,
+        isoNow,
+        participant.division,
+        participant.nickname,
+        week.unit,
+        1,
+        score, '', '',
+        dateKey, '', '',
+        inputBy,
+        userAgent,
+      ];
+      sheet.appendRow(row);
+    } else {
+      const nextScores = [existing.score1, existing.score2, existing.score3];
+      const nextDates = [existing.date1, existing.date2, existing.date3];
+      nextScores[slot] = score;
+      nextDates[slot] = dateKey;
+      const attempts = nextScores.filter(value => Number.isFinite(value)).length;
+      sheet.getRange(existing.rowNumber, 1, existing.rowNumber, EVENT_HEADERS.length).setValues([[
+        existing.participantId,
+        existing.createdAt || isoNow,
+        isoNow,
+        participant.division,
+        participant.nickname,
+        week.unit,
+        attempts,
+        nextScores[0] == null ? '' : nextScores[0],
+        nextScores[1] == null ? '' : nextScores[1],
+        nextScores[2] == null ? '' : nextScores[2],
+        nextDates[0] || '',
+        nextDates[1] || '',
+        nextDates[2] || '',
+        inputBy,
+        userAgent || existing.userAgent || '',
+      ]]);
+    }
 
     return {
       ok: true,
       message: '登録しました。',
       record: {
-        createdAt: record.createdAt,
-        dateKey: record.dateKey,
-        participantId: record.participantId,
-        displayName: record.displayName,
-        week: record.week,
-        event: record.event,
-        score: record.score,
-        unit: record.unit,
-        division: record.division,
+        createdAt: isoNow,
+        dateKey,
+        participantId: participant.participantId,
+        displayName: participant.nickname,
+        week: week.week,
+        event: week.event,
+        score,
+        unit: week.unit,
+        division: participant.division,
+        attempt: slot + 1,
       },
     };
   } finally {
@@ -175,10 +220,18 @@ function getSpreadsheet() {
   return SpreadsheetApp.openById(SPREADSHEET_ID);
 }
 
+function renameLegacySheetIfNeeded(legacyName, nextName) {
+  const ss = getSpreadsheet();
+  const legacy = ss.getSheetByName(legacyName);
+  const next = ss.getSheetByName(nextName);
+  if (legacy && !next) legacy.setName(nextName);
+}
+
 function getSheet(name) {
   if (name === PARTICIPANTS_SHEET) return ensureSheet(PARTICIPANTS_SHEET, PARTICIPANT_HEADERS);
-  if (name === RECORDS_SHEET) return ensureSheet(RECORDS_SHEET, RECORD_HEADERS);
   if (name === SESSIONS_SHEET) return ensureSheet(SESSIONS_SHEET, SESSION_HEADERS);
+  const week = EVENT_WEEKS.find(item => item.sheet === name);
+  if (week) return ensureSheet(week.sheet, EVENT_HEADERS);
   throw new Error('Unknown sheet');
 }
 
@@ -242,42 +295,74 @@ function findSession(token) {
   return session;
 }
 
-function getRecords() {
-  return readRows(getSheet(RECORDS_SHEET), RECORD_HEADERS)
-    .filter(row => row.id)
-    .map(row => ({
-      id: row.id,
-      createdAt: row.createdAt,
-      dateKey: row.dateKey,
-      participantId: row.participantId,
-      displayName: row.displayName,
-      week: Number(row.week),
-      event: row.event,
-      score: Number(row.score),
-      unit: row.unit,
-      division: row.division,
-      inputBy: row.inputBy,
-    }));
+function readEventRows(week) {
+  const sheet = getSheet(week.sheet);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  return sheet.getRange(2, 1, lastRow, EVENT_HEADERS.length).getValues().map((row, index) => {
+    const item = {};
+    EVENT_HEADERS.forEach((header, col) => item[header] = row[col]);
+    return {
+      rowNumber: index + 2,
+      participantId: String(item.participantId || '').trim(),
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      division: item.division === 'staff' ? 'staff' : 'member',
+      displayName: String(item.displayName || '').trim(),
+      unit: item.unit || week.unit,
+      attempts: Number(item.attempts) || 0,
+      score1: toOptionalNumber(item.score1),
+      score2: toOptionalNumber(item.score2),
+      score3: toOptionalNumber(item.score3),
+      date1: normalizeDateKey(item.date1),
+      date2: normalizeDateKey(item.date2),
+      date3: normalizeDateKey(item.date3),
+      inputBy: item.inputBy,
+      userAgent: item.userAgent,
+      week: week.week,
+      event: week.event,
+    };
+  }).filter(row => row.participantId);
+}
+
+function getAllEventRows() {
+  return EVENT_WEEKS.reduce((all, week) => all.concat(readEventRows(week)), []);
+}
+
+function flattenRecords(rows) {
+  const records = [];
+  rows.forEach(row => {
+    [
+      { score: row.score1, dateKey: row.date1, attempt: 1 },
+      { score: row.score2, dateKey: row.date2, attempt: 2 },
+      { score: row.score3, dateKey: row.date3, attempt: 3 },
+    ].forEach(slot => {
+      if (!Number.isFinite(slot.score)) return;
+      records.push({
+        createdAt: row.updatedAt || row.createdAt,
+        dateKey: slot.dateKey,
+        participantId: row.participantId,
+        displayName: row.displayName,
+        week: row.week,
+        event: row.event,
+        score: slot.score,
+        unit: row.unit,
+        division: row.division,
+        attempt: slot.attempt,
+      });
+    });
+  });
+  return records;
 }
 
 function publicRecords() {
-  return getRecords().map(r => ({
-    createdAt: r.createdAt,
-    dateKey: r.dateKey,
-    participantId: r.participantId,
-    displayName: r.displayName,
-    week: r.week,
-    event: r.event,
-    score: r.score,
-    unit: r.unit,
-    division: r.division,
-  }));
+  return flattenRecords(getAllEventRows());
 }
 
 function readRows(sheet, headers) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
-  return sheet.getRange(2, 1, lastRow - 1, headers.length).getValues().map(row => {
+  return sheet.getRange(2, 1, lastRow, headers.length).getValues().map(row => {
     const item = {};
     headers.forEach((header, index) => item[header] = row[index]);
     return item;
@@ -285,7 +370,7 @@ function readRows(sheet, headers) {
 }
 
 function buildStats() {
-  const records = getRecords();
+  const records = publicRecords();
   const current = getCurrentWeek();
   const currentRecords = records.filter(r => Number(r.week) === current.week);
   const participants = {};
@@ -299,35 +384,91 @@ function buildStats() {
 }
 
 function buildAllRankings() {
-  const records = getRecords();
   return EVENT_WEEKS.reduce((all, week) => {
-    all[week.week] = buildRanking(records, week);
+    all[week.week] = buildRanking(readEventRows(week), week);
     return all;
   }, {});
 }
 
-function buildRanking(records, week) {
+function buildRanking(rows, week) {
+  const ranked = rows.map(row => {
+    const scores = [row.score1, row.score2, row.score3].filter(value => Number.isFinite(value));
+    return {
+      displayName: row.displayName,
+      week: week.week,
+      event: week.event,
+      unit: week.unit,
+      division: row.division,
+      attempts: scores.length,
+      total: scores.reduce((sum, value) => sum + value, 0),
+      score1: row.score1,
+      score2: row.score2,
+      score3: row.score3,
+    };
+  }).filter(row => row.attempts > 0);
+
+  ranked.sort((a, b) => week.higherIsBetter ? b.total - a.total : a.total - b.total);
+  return ranked.slice(0, 10).map((row, index) => ({ ...row, rank: index + 1 }));
+}
+
+function migrateLegacyRecordsIfNeeded() {
+  const ss = getSpreadsheet();
+  const legacy = ss.getSheetByName(LEGACY_RECORDS_SHEET);
+  if (!legacy || legacy.getLastRow() < 2) return;
+
+  const hasAnyEventData = EVENT_WEEKS.some(week => getSheet(week.sheet).getLastRow() >= 2);
+  if (hasAnyEventData) return;
+
+  const legacyHeaders = ['id', 'createdAt', 'dateKey', 'participantId', 'displayName', 'week', 'event', 'score', 'unit', 'division', 'inputBy', 'userAgent'];
+  const legacyRows = readRows(legacy, legacyHeaders).filter(row => row.participantId && Number.isFinite(Number(row.score)));
+  if (!legacyRows.length) return;
+
   const grouped = {};
-  records.filter(r => Number(r.week) === week.week).forEach(record => {
-    const key = record.participantId;
+  legacyRows.forEach(row => {
+    const weekNo = Number(row.week);
+    const week = EVENT_WEEKS.find(item => item.week === weekNo);
+    if (!week) return;
+    const key = `${weekNo}::${row.participantId}`;
     if (!grouped[key]) {
       grouped[key] = {
-        displayName: record.displayName,
-        week: week.week,
-        event: week.event,
-        unit: week.unit,
-        division: record.division,
-        attempts: 0,
-        total: 0,
+        week,
+        participantId: String(row.participantId).trim(),
+        displayName: String(row.displayName || '').trim(),
+        division: row.division === 'staff' ? 'staff' : 'member',
+        unit: row.unit || week.unit,
+        createdAt: row.createdAt || new Date().toISOString(),
+        scores: [],
+        dates: [],
+        inputBy: row.inputBy || 'self',
+        userAgent: row.userAgent || '',
       };
     }
-    grouped[key].attempts += 1;
-    grouped[key].total += Number(record.score);
-    if (record.division === 'staff') grouped[key].division = 'staff';
+    if (grouped[key].scores.length >= 3) return;
+    grouped[key].scores.push(Number(row.score));
+    grouped[key].dates.push(normalizeDateKey(row.dateKey));
   });
-  const rows = Object.keys(grouped).map(key => grouped[key]);
-  rows.sort((a, b) => week.higherIsBetter ? b.total - a.total : a.total - b.total);
-  return rows.slice(0, 10).map((row, index) => ({ ...row, rank: index + 1 }));
+
+  Object.keys(grouped).forEach(key => {
+    const item = grouped[key];
+    const sheet = getSheet(item.week.sheet);
+    sheet.appendRow([
+      item.participantId,
+      item.createdAt,
+      item.createdAt,
+      item.division,
+      item.displayName,
+      item.unit,
+      item.scores.length,
+      item.scores[0] != null ? item.scores[0] : '',
+      item.scores[1] != null ? item.scores[1] : '',
+      item.scores[2] != null ? item.scores[2] : '',
+      item.dates[0] || '',
+      item.dates[1] || '',
+      item.dates[2] || '',
+      item.inputBy,
+      item.userAgent,
+    ]);
+  });
 }
 
 function getCurrentWeek() {
@@ -343,6 +484,20 @@ function getCurrentWeek() {
   if (active) return active;
   if (now < new Date(`${EVENT_WEEKS[0].start}T00:00:00+09:00`)) return EVENT_WEEKS[0];
   return EVENT_WEEKS[EVENT_WEEKS.length - 1];
+}
+
+function toOptionalNumber(value) {
+  if (value === '' || value == null) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
+function normalizeDateKey(value) {
+  if (!value) return '';
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, 'Asia/Tokyo', 'yyyy-MM-dd');
+  }
+  return String(value).slice(0, 10);
 }
 
 function jsonResponse(payload, e) {

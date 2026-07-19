@@ -3,19 +3,20 @@
 ## 内容
 
 - `index.html`: スマホ向けのログイン制投稿フォーム兼ランキングページです。
-- `joyfit9-pop.png`: POP画像をページ上部に使う素材です。
-- `Code.gs`: Google Apps Scriptに貼り付けるスプレッドシート連携コードです。
+- `gas/Code.gs`: Google Apps Scriptに貼り付けるスプレッドシート連携コードです。
+
+公開URL（Vercel）: https://joyfit-9th-event.vercel.app
 
 ## 運用イメージ
 
 1. 参加者はQRからページを開き、ニックネーム、4桁パスワードでログインします。
-2. 初回ログイン時に `participants` シートへ自動登録されます。
+2. 初回ログイン時に `参加者` シートへ自動登録されます。
 3. ログイン後、今週の種目の記録だけ入力して送信します。
-4. 送信データは `records` シートに入り、ランキングに反映されます。
+4. 送信データは種目別シート（例: `握力測定`）に入り、ランキングに反映されます。
 
 ## 画面の使い方
 
-1. 「記録を送信」でニックネーム、4桁パスワードを入力します。
+1. 「ログイン」でニックネーム、4桁パスワードを入力します。
 2. ログイン後、記録を入力して送信します。
 3. 「ランキング」で今週TOP10と過去WeekのTOP10を確認できます。
 
@@ -23,11 +24,14 @@
 
 1. Googleスプレッドシートを開きます。
 2. `拡張機能 > Apps Script` を開きます。
-3. `Code.gs` の中身を貼り付けて保存します。
+3. `gas/Code.gs` の中身を貼り付けて保存します。
 4. エディタ上部の関数選択で `setupSheets` を選んで実行します。
 5. 初回だけGoogleの権限許可を行います。
-6. `participants`, `records`, `sessions` シートが作成されます。
-7. `participants` には動作確認用として `テスト / 1111` と `STAFF / 9999` が入ります。通常は参加者の初回ログインで自動追加されます。
+6. 次のシートが作成（または旧英語名からリネーム）されます。
+   - `参加者`
+   - `セッション`
+   - `握力測定` / `前屈` / `プランク` / `腕立て伏せ`
+7. `参加者` には動作確認用として `テスト / 1111` と `STAFF / 9999` が入ります。通常は参加者の初回ログインで自動追加されます。
 8. `デプロイ > 新しいデプロイ > ウェブアプリ` を選びます。
 9. 実行ユーザーは「自分」、アクセス権は運用方針に合わせて「全員」または「リンクを知っている全員」にします。
 10. 発行されたウェブアプリURLを `index.html` の `CONFIG.gasEndpoint` に貼り付けます。
@@ -44,7 +48,12 @@ const CONFIG = {
 
 今回のスプレッドシートIDは `Code.gs` の `SPREADSHEET_ID` に設定済みです。
 
-## participants シート
+旧シート名（`participants` / `sessions` / `records`）がある場合:
+
+- `participants` → `参加者`、`sessions` → `セッション` へ自動リネームします。
+- 旧 `records` の行データは、種目シートが空のときだけ 1人1行形式へ自動移行します。
+
+## 参加者 シート
 
 店舗側で確認できる参加者管理シートです。
 
@@ -56,16 +65,32 @@ const CONFIG = {
 - `division`: `member` または `staff`
 - `active`: `TRUE` ならログイン可能
 
+## 種目シート（握力測定 / 前屈 / プランク / 腕立て伏せ）
+
+1人あたり1行で、最大3回分の記録を横持ちします。
+
+| 列 | 項目 | 内容 |
+|---|---|---|
+| A | participantId | 内部ID |
+| B | createdAt | 初回登録日時 |
+| C | updatedAt | 最終更新日時 |
+| D | division | member / staff |
+| E | displayName | 表示名 |
+| F | unit | 単位 |
+| G | attempts | 登録回数（1〜3） |
+| H | score1 | 1回目の記録 |
+| I | score2 | 2回目の記録 |
+| J | score3 | 3回目の記録 |
+| K | date1 | 1回目の日付 |
+| L | date2 | 2回目の日付 |
+| M | date3 | 3回目の日付 |
+
+ランキングは `score1 + score2 + score3` の合計です。
+
 ## テストWeek
 
 現在は本番前確認のため、`index.html` の `testWeekOverride` と `Code.gs` の `TEST_WEEK_OVERRIDE` を `1` にしています。
 イベント開始後に日付で自動切替したい場合は、どちらも空または `0` に変更してください。
-
-## records シート
-
-送信された記録が入るシートです。
-
-`id`, `createdAt`, `dateKey`, `participantId`, `displayName`, `week`, `event`, `score`, `unit`, `division`, `inputBy`, `userAgent`
 
 ## 現在のルール
 
@@ -81,5 +106,4 @@ const CONFIG = {
 ## 調整しやすいところ
 
 - イベント日程や種目名は `index.html` と `Code.gs` の `weeks` / `EVENT_WEEKS` を変更します。
-- 識別メモを必須にしたい場合は、`index.html` の該当inputに `required` を追加し、GAS側でも空欄チェックを追加します。
 - スタッフをランキングから分けたい場合は、`division` を使って表示条件を追加できます。

@@ -4,46 +4,44 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JOYFIT24 9周年チャレンジ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --red: #c21632;
-      --red-dark: #7b0a1b;
-      --red-soft: #fff1f4;
-      --black: #111111;
-      --ink: #252120;
-      --muted: #786d68;
-      --line: #e7d9d4;
-      --paper: #f6f6f7;
-      --white: #ffffff;
-      --gold: #e8b62d;
-      --gold-soft: #fff6d9;
-      --green: #0c7a61;
-      --shadow: 0 18px 44px rgba(20, 20, 20, .16);
-      font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      --red: #d0122d;
+      --red-deep: #8e0a1c;
+      --ink: #121212;
+      --mute: #6b6562;
+      --line: rgba(18, 18, 18, .12);
+      --paper: #f3f1ef;
+      --board: #0c0c0d;
+      --gold: #d4a017;
+      --ok: #0f7a5a;
+      --shadow: 0 18px 40px rgba(0, 0, 0, .28);
+      --display: "Bebas Neue", "Zen Kaku Gothic New", sans-serif;
+      --sans: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif;
     }
 
     * { box-sizing: border-box; }
 
     html {
       min-height: 100%;
-      background: #160303;
+      background: #1a0508;
     }
 
     body {
       min-height: 100%;
       margin: 0;
       color: var(--ink);
+      font-family: var(--sans);
       background:
-        linear-gradient(135deg, rgba(194, 22, 50, .08) 0 11px, transparent 11px 22px),
-        linear-gradient(180deg, #ffffff 0%, #f4f4f5 48%, #e8e8eb 100%);
-      letter-spacing: 0;
+        radial-gradient(ellipse at 50% -10%, rgba(208, 18, 45, .28), transparent 42%),
+        linear-gradient(180deg, #23070c 0%, #120305 48%, #070707 100%);
     }
 
-    button,
-    input,
-    select {
+    button, input, select {
       font: inherit;
-      letter-spacing: 0;
     }
 
     button { cursor: pointer; }
@@ -53,494 +51,389 @@
       min-height: 100svh;
       margin: 0 auto;
       background: var(--paper);
-      box-shadow: 0 0 60px rgba(30, 0, 0, .22);
+      box-shadow: 0 0 80px rgba(0, 0, 0, .55);
     }
 
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active { display: block; animation: viewIn .45s ease both; }
 
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ===== AUTH / SCOREBOARD ENTRY ===== */
     .authHero {
       position: relative;
       min-height: 100svh;
-      padding: 22px 14px 18px;
       overflow: hidden;
-      background:
-        linear-gradient(180deg, #111 0%, #171719 45%, #090909 100%);
       color: #fff;
+      background:
+        linear-gradient(180deg, rgba(8, 8, 8, .2) 0%, rgba(8, 8, 8, .72) 58%, #080808 100%),
+        linear-gradient(145deg, #1a1a1c 0%, #0a0a0b 55%, #4a0712 130%);
     }
 
     .authHero::before {
       content: "";
       position: absolute;
-      inset: 0;
+      inset: -10%;
       background:
-        linear-gradient(120deg, transparent 0 42%, rgba(194,22,50,.48) 42% 43%, transparent 43% 100%),
-        linear-gradient(28deg, transparent 0 54%, rgba(255,255,255,.10) 54% 55%, transparent 55% 100%),
-        radial-gradient(circle at 72% 20%, rgba(194,22,50,.36), transparent 210px);
-      animation: bgShift 8s ease-in-out infinite alternate;
+        repeating-linear-gradient(
+          -18deg,
+          transparent 0 34px,
+          rgba(208, 18, 45, .08) 34px 35px
+        ),
+        radial-gradient(circle at 78% 18%, rgba(208, 18, 45, .5), transparent 34%);
+      animation: arenaDrift 10s ease-in-out infinite alternate;
     }
 
     .authHero::after {
-      content: "";
+      content: "9";
       position: absolute;
       right: -18px;
-      top: 42px;
-      width: 138px;
-      aspect-ratio: 1;
-      border: 2px solid rgba(255,255,255,.12);
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at center, transparent 0 38%, rgba(194,22,50,.18) 39% 57%, transparent 58%),
-        conic-gradient(from 120deg, rgba(194,22,50,.75), rgba(255,255,255,.12), rgba(194,22,50,.75));
-      opacity: .72;
-      animation: rotateRing 18s linear infinite;
+      bottom: -40px;
+      font-family: var(--display);
+      font-size: clamp(220px, 70vw, 280px);
+      line-height: .75;
+      letter-spacing: -.04em;
+      color: rgba(255, 255, 255, .04);
       pointer-events: none;
+      user-select: none;
     }
 
-    @keyframes bgShift {
-      from { transform: translate3d(-10px, -6px, 0) scale(1.02); }
-      to { transform: translate3d(10px, 8px, 0) scale(1.05); }
-    }
-
-    @keyframes rotateRing {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes pulseLine {
-      0%, 100% { transform: scaleX(.22); opacity: .45; }
-      50% { transform: scaleX(1); opacity: 1; }
+    @keyframes arenaDrift {
+      from { transform: translate3d(-8px, -4px, 0) scale(1.02); }
+      to { transform: translate3d(10px, 8px, 0) scale(1.06); }
     }
 
     .authInner {
       position: relative;
       z-index: 1;
       display: grid;
-      align-content: start;
-      min-height: calc(100svh - 40px);
-      gap: 16px;
+      align-content: space-between;
+      gap: 28px;
+      min-height: 100svh;
+      padding: 28px 20px 24px;
     }
 
-    .brandMark {
-      display: inline-grid;
-      gap: 5px;
-      align-self: start;
-      width: fit-content;
-      padding: 9px 11px;
-      border: 1px solid rgba(255,255,255,.22);
-      background: rgba(255,255,255,.08);
-      border-radius: 8px;
-      backdrop-filter: blur(10px);
-    }
-
-    .brandMark b {
-      font-size: 16px;
-      font-weight: 1000;
-      line-height: 1;
-    }
-
-    .brandMark small {
-      color: rgba(255,255,255,.78);
-      font-size: 10px;
-      font-weight: 900;
-    }
-
-    .authCopy {
-      padding-top: 18px;
-      text-shadow: 0 5px 18px rgba(0,0,0,.5);
-    }
-
-    .authCopy .label,
-    .topLabel {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.92);
-      color: var(--red-dark);
-      font-size: 12px;
-      font-weight: 1000;
-      text-shadow: none;
-    }
-
-    .authCopy h1 {
-      margin: 12px 0 9px;
-      font-size: clamp(34px, 9.2vw, 44px);
-      line-height: .98;
-      font-weight: 1000;
-    }
-
-    .authCopy p {
-      width: min(100%, 340px);
-      margin: 0;
-      color: rgba(255,255,255,.9);
-      font-size: 14px;
-      line-height: 1.55;
-      font-weight: 800;
-    }
-
-    .motionLine {
-      width: 180px;
-      height: 4px;
-      margin-top: 12px;
-      border-radius: 999px;
-      background: var(--red);
-      transform-origin: left center;
-      animation: pulseLine 2.4s ease-in-out infinite;
-      box-shadow: 0 0 20px rgba(194,22,50,.65);
-    }
-
-    .authCard,
-    .surface {
-      background: rgba(255,255,255,.97);
-      color: var(--ink);
-      border: 1px solid rgba(255,255,255,.52);
-      border-radius: 10px;
-      box-shadow: var(--shadow);
-    }
-
-    .authCard {
+    .brandBlock {
       display: grid;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 12px;
-    }
-
-    .formGrid {
-      display: grid;
-      gap: 12px;
-    }
-
-    label {
-      display: grid;
-      gap: 7px;
-      color: var(--ink);
-      font-size: 12px;
-      font-weight: 1000;
-    }
-
-    input,
-    select {
-      width: 100%;
-      min-height: 52px;
-      padding: 10px 12px;
-      border: 2px solid #2a2523;
-      border-radius: 8px;
-      background: #fff;
-      color: var(--ink);
-      font-size: 17px;
-      font-weight: 900;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: var(--red);
-      box-shadow: 0 0 0 4px rgba(194, 22, 50, .13);
-    }
-
-    .fieldHint {
-      margin-top: -2px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 1.45;
-    }
-
-    .pinRow {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
-    .primaryButton,
-    .secondaryButton,
-    .quietButton {
+    .brandBlock .store {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(54px, 15vw, 68px);
+      line-height: .88;
+      letter-spacing: .02em;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+      animation: brandRise .7s ease both;
+    }
+
+    .brandBlock .store span {
+      display: block;
+      color: var(--red);
+    }
+
+    .brandBlock .anniversary {
+      margin: 0;
+      color: rgba(255, 255, 255, .72);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    @keyframes brandRise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .authLead {
+      display: grid;
+      gap: 12px;
+      max-width: 340px;
+    }
+
+    .authLead h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 34px);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .authLead p {
+      margin: 0;
+      color: rgba(255, 255, 255, .78);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 500;
+    }
+
+    .authPulse {
+      width: 88px;
+      height: 3px;
+      background: var(--red);
+      transform-origin: left center;
+      animation: pulseLine 2.6s ease-in-out infinite;
+      box-shadow: 0 0 18px rgba(208, 18, 45, .7);
+    }
+
+    @keyframes pulseLine {
+      0%, 100% { transform: scaleX(.35); opacity: .5; }
+      50% { transform: scaleX(1); opacity: 1; }
+    }
+
+    .loginBoard {
+      display: grid;
+      gap: 14px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, .16);
+    }
+
+    .loginBoard label {
+      display: grid;
+      gap: 8px;
+      color: rgba(255, 255, 255, .9);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    .fieldHint {
+      color: rgba(255, 255, 255, .5);
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    input {
       width: 100%;
       min-height: 54px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 1000;
+      padding: 12px 14px;
+      border: 0;
+      border-bottom: 2px solid rgba(255, 255, 255, .35);
+      border-radius: 0;
+      background: rgba(255, 255, 255, .06);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    input::placeholder { color: rgba(255, 255, 255, .35); }
+
+    input:focus {
+      border-bottom-color: var(--red);
+      background: rgba(255, 255, 255, .1);
     }
 
     .primaryButton {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 4px;
       border: 0;
+      border-radius: 2px;
       color: #fff;
-      background: linear-gradient(180deg, #c21632, #971126);
-      box-shadow: 0 7px 0 #70091b;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      background: linear-gradient(180deg, #e21834, #b10e24);
+      box-shadow: 0 8px 0 #6f0816;
       transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
 
     .primaryButton:active {
-      transform: translateY(3px);
-      box-shadow: 0 4px 0 #70091b;
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #6f0816;
     }
 
     .primaryButton:disabled {
       cursor: wait;
-      filter: saturate(.8) brightness(.92);
-      transform: translateY(3px);
-      box-shadow: 0 4px 0 #70091b;
+      filter: saturate(.75) brightness(.9);
     }
 
-    .secondaryButton {
-      border: 2px solid var(--red);
-      color: var(--red);
-      background: #fff;
-    }
-
-    .quietButton {
-      border: 2px solid var(--line);
-      color: var(--ink);
-      background: #fff;
+    .appView .primaryButton,
+    .entryBoard .primaryButton {
+      color: #fff;
     }
 
     .message {
       display: none;
-      padding: 12px 13px;
-      border-radius: 8px;
+      padding: 12px 0 0;
       font-size: 13px;
-      font-weight: 900;
+      font-weight: 700;
       line-height: 1.55;
     }
 
     .message.show { display: block; }
-    .message.ok {
-      color: var(--green);
-      background: #e8fff5;
-      border: 2px solid #8bdcc3;
-    }
-    .message.err {
-      color: var(--red-dark);
-      background: #fff0f0;
-      border: 2px solid #f0a4a4;
+    .message.ok { color: #8ef0c8; }
+    .message.err { color: #ffb4b4; }
+
+    .appView .message.ok {
+      color: var(--ok);
+      border-top: 1px solid rgba(15, 122, 90, .25);
     }
 
-    .loadingOverlay {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      display: none;
-      place-items: center;
-      padding: 22px;
-      background: rgba(8, 8, 9, .76);
-      backdrop-filter: blur(12px);
+    .appView .message.err {
+      color: var(--red-deep);
+      border-top: 1px solid rgba(208, 18, 45, .2);
     }
 
-    .loadingOverlay.show {
-      display: grid;
-    }
-
-    .loadingPanel {
-      width: min(100%, 330px);
-      padding: 24px 22px;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(22,22,24,.98), rgba(5,5,6,.98));
-      color: #fff;
-      text-align: center;
-      box-shadow: 0 24px 60px rgba(0,0,0,.45);
-    }
-
-    .loaderRing {
+    /* ===== APP / BOARD ===== */
+    .shellHeader {
       position: relative;
-      width: 82px;
-      height: 82px;
-      margin: 0 auto 16px;
-      border-radius: 50%;
+      overflow: hidden;
+      padding: 20px 18px 22px;
+      color: #fff;
       background:
-        radial-gradient(circle, #111 0 52%, transparent 53%),
-        conic-gradient(from 0deg, var(--red), #fff 34%, #555 52%, var(--red) 100%);
-      animation: spin 1s linear infinite;
-      box-shadow: 0 0 30px rgba(194,22,50,.35);
+        linear-gradient(160deg, rgba(208, 18, 45, .18), transparent 46%),
+        linear-gradient(180deg, #141416 0%, #090909 70%, #2a0710 160%);
     }
 
-    .loaderRing::after {
+    .shellHeader::before {
       content: "";
       position: absolute;
-      inset: 15px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.16);
-      background: #101012;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0 46px,
+        rgba(255, 255, 255, .03) 46px 47px
+      );
+      pointer-events: none;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .loadingPanel strong {
-      display: block;
-      font-size: 20px;
-      font-weight: 1000;
-    }
-
-    .loadingPanel p {
-      margin: 8px 0 18px;
-      color: rgba(255,255,255,.72);
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.55;
-    }
-
-    .progressTrack {
-      height: 10px;
-      overflow: hidden;
-      border-radius: 999px;
-      background: rgba(255,255,255,.12);
-    }
-
-    .progressBar {
-      width: 0%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #fff, var(--red));
-      transition: width .18s ease;
-    }
-
-    .progressText {
-      margin-top: 10px;
-      color: rgba(255,255,255,.9);
-      font-size: 13px;
-      font-weight: 1000;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .shellHeader {
-      padding: 18px 16px 16px;
-      color: #fff;
-      background:
-        radial-gradient(circle at 86% 14%, rgba(255,255,255,.18), transparent 120px),
-        linear-gradient(135deg, rgba(255,255,255,.08) 0 8px, transparent 8px 16px),
-        linear-gradient(180deg, #161616 0%, #090909 45%, #c21632 140%);
+    .headerTop,
+    .eventBoard,
+    .tabs,
+    .section {
+      position: relative;
+      z-index: 1;
     }
 
     .headerTop {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
     }
 
-    .headerTitle {
+    .headerBrand {
       min-width: 0;
     }
 
-    .headerTitle small {
+    .headerBrand .eyebrow {
       display: block;
-      color: rgba(255,255,255,.78);
-      font-size: 11px;
-      font-weight: 900;
+      color: rgba(255, 255, 255, .62);
+      font-family: var(--display);
+      font-size: 14px;
+      letter-spacing: .18em;
     }
 
-    .headerTitle b {
+    .headerBrand b {
       display: block;
-      margin-top: 3px;
+      margin-top: 4px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: 22px;
-      line-height: 1;
-      font-weight: 1000;
+      font-size: 18px;
+      font-weight: 900;
     }
 
     .logout {
       flex: none;
-      min-height: 38px;
+      min-height: 36px;
       padding: 0 12px;
-      border: 1px solid rgba(255,255,255,.55);
-      border-radius: 999px;
-      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255, 255, 255, .35);
+      border-radius: 0;
+      background: transparent;
       color: #fff;
-      font-size: 12px;
-      font-weight: 1000;
-    }
-
-    .weekHero {
-      margin-top: 18px;
-      overflow: hidden;
-      border-radius: 10px;
-      background:
-        linear-gradient(135deg, rgba(194,22,50,.12), transparent 44%),
-        #fff;
-      color: var(--ink);
-      box-shadow: 0 16px 34px rgba(0, 0, 0, .28);
-    }
-
-    .weekHeroTop {
-      display: grid;
-      grid-template-columns: 112px 1fr;
-      background: #fff;
-    }
-
-    .weekNo {
-      display: grid;
-      place-items: center;
-      min-height: 88px;
-      color: #fff;
-      background:
-        linear-gradient(160deg, #1b1b1d, #050505 58%, #c21632 170%);
-      font-size: 18px;
-      font-weight: 1000;
-      line-height: 1;
-    }
-
-    .weekInfo {
-      display: grid;
-      align-content: center;
-      padding: 14px 15px;
-    }
-
-    .weekInfo span {
-      color: var(--red-dark);
       font-size: 11px;
-      font-weight: 1000;
+      font-weight: 700;
+      letter-spacing: .08em;
     }
 
-    .weekInfo strong {
-      margin-top: 3px;
-      font-size: 28px;
-      line-height: 1.05;
-      font-weight: 1000;
+    .eventBoard {
+      margin-top: 22px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .eventMeta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      color: rgba(255, 255, 255, .7);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    .eventBoard strong {
+      display: block;
+      font-family: var(--display);
+      font-size: clamp(42px, 12vw, 56px);
+      line-height: .92;
+      letter-spacing: .02em;
+      font-weight: 400;
+    }
+
+    .eventBoard .period {
+      color: rgba(255, 255, 255, .55);
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 14px 16px 0;
-      background: var(--paper);
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      background: #ebe8e5;
     }
 
     .tabButton {
-      min-height: 44px;
-      border: 2px solid var(--red);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--red);
-      font-size: 14px;
-      font-weight: 1000;
+      min-height: 48px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--mute);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
     }
 
     .tabButton.active {
-      color: #fff;
-      background: var(--red);
-      box-shadow: 0 5px 0 var(--red-dark);
-      transform: translateY(-2px);
+      color: var(--ink);
+      border-bottom-color: var(--red);
+      background: var(--paper);
     }
 
     .section {
       display: none;
-      padding: 16px;
+      padding: 18px 18px 28px;
+      background: var(--paper);
     }
 
-    .section.active { display: block; }
+    .section.active {
+      display: block;
+      animation: panelIn .35s ease both;
+    }
 
-    .surface {
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .entryBoard,
+    .rankBoard {
       display: grid;
-      gap: 14px;
-      padding: 16px;
-      background: #fff;
-      border-color: var(--line);
+      gap: 18px;
     }
 
     .sectionHead {
@@ -552,100 +445,141 @@
 
     .sectionHead h2 {
       margin: 0;
-      font-size: 21px;
-      line-height: 1.1;
-      font-weight: 1000;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .14em;
     }
 
     .sectionHead span {
-      flex: none;
-      color: var(--red-dark);
+      color: var(--mute);
       font-size: 12px;
-      font-weight: 1000;
+      font-weight: 700;
     }
 
-    .scoreGuide {
+    .scoreStage {
       display: grid;
-      grid-template-columns: 1fr auto;
+      gap: 6px;
+      padding: 8px 0 4px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .scoreStage .guide {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
       gap: 12px;
-      align-items: center;
-      padding: 13px;
-      border: 1px solid #ead9d9;
-      border-radius: 8px;
-      background: linear-gradient(180deg, #fff, #fff8f8);
     }
 
-    .scoreGuide b {
-      display: block;
-      font-size: 15px;
-      font-weight: 1000;
+    .scoreStage b {
+      font-size: 22px;
+      font-weight: 900;
     }
 
-    .scoreGuide small {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.45;
-      font-weight: 800;
+    .scoreStage .unit {
+      font-family: var(--display);
+      font-size: 28px;
+      letter-spacing: .04em;
+      color: var(--red);
     }
 
-    .unitBadge {
+    .scoreStage small {
+      color: var(--mute);
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+
+    .formGrid {
       display: grid;
-      place-items: center;
-      min-width: 56px;
-      min-height: 44px;
-      border-radius: 8px;
-      background: var(--black);
-      color: #fff;
-      font-size: 18px;
-      font-weight: 1000;
+      gap: 14px;
     }
 
-    .formSplit {
+    .appView label,
+    .entryBoard label {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      align-items: end;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    .entryBoard input {
+      border: 0;
+      border-bottom: 2px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--display);
+      font-size: 42px;
+      letter-spacing: .04em;
+      min-height: 72px;
+      padding: 8px 0;
+    }
+
+    .entryBoard input::placeholder {
+      color: rgba(18, 18, 18, .22);
+      font-size: 34px;
+    }
+
+    .entryBoard input:focus {
+      border-bottom-color: var(--red);
+      background: transparent;
+      box-shadow: none;
     }
 
     .ranking {
       display: grid;
-      gap: 8px;
+      gap: 0;
       margin: 0;
       padding: 0;
       list-style: none;
+      border-top: 1px solid var(--line);
     }
 
     .rankItem {
       display: grid;
-      grid-template-columns: 42px 1fr auto;
+      grid-template-columns: 40px 1fr auto;
       align-items: center;
-      gap: 10px;
-      min-height: 60px;
-      padding: 9px 10px;
-      border: 2px solid var(--line);
-      border-radius: 9px;
-      background: #fff;
+      gap: 12px;
+      min-height: 62px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      animation: rankIn .4s ease both;
     }
 
-    .rankItem:nth-child(1) {
-      border-color: var(--gold);
-      background: var(--gold-soft);
+    .rankItem:nth-child(1) { animation-delay: .02s; }
+    .rankItem:nth-child(2) { animation-delay: .05s; }
+    .rankItem:nth-child(3) { animation-delay: .08s; }
+    .rankItem:nth-child(4) { animation-delay: .11s; }
+    .rankItem:nth-child(5) { animation-delay: .14s; }
+
+    @keyframes rankIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to { opacity: 1; transform: none; }
     }
 
-    .rankItem:nth-child(2) { border-color: #bec8d2; }
-    .rankItem:nth-child(3) { border-color: #c98643; }
+    .rankItem:nth-child(1) .place {
+      background: var(--gold);
+      color: #111;
+    }
+
+    .rankItem:nth-child(1) .score {
+      color: var(--ink);
+    }
 
     .place {
       display: grid;
       place-items: center;
-      width: 38px;
+      width: 34px;
       aspect-ratio: 1;
-      border-radius: 50%;
-      background: var(--black);
+      border-radius: 0;
+      background: var(--board);
       color: #fff;
-      font-weight: 1000;
+      font-family: var(--display);
+      font-size: 18px;
+      letter-spacing: .02em;
     }
 
     .name {
@@ -654,98 +588,134 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       font-size: 15px;
-      font-weight: 1000;
+      font-weight: 900;
     }
 
     .sub {
       display: block;
       margin-top: 3px;
-      color: var(--muted);
+      color: var(--mute);
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 500;
     }
 
     .score {
       color: var(--red);
-      font-size: 18px;
-      font-weight: 1000;
+      font-family: var(--display);
+      font-size: 24px;
+      letter-spacing: .02em;
       white-space: nowrap;
     }
 
     .weeks {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 7px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .weekChip {
-      min-height: 48px;
-      padding: 7px 4px;
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      min-height: 52px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
       color: var(--ink);
-      font-size: 11px;
-      line-height: 1.2;
-      font-weight: 1000;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
     }
 
     .weekChip.active {
-      border-color: var(--red);
-      background: var(--red);
+      border-color: var(--ink);
+      background: var(--board);
       color: #fff;
     }
 
-    .miniPoster {
-      display: grid;
-      grid-template-columns: 70px 1fr;
-      gap: 11px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+    .rankBoard + .rankBoard {
+      margin-top: 28px;
+      padding-top: 8px;
     }
 
-    .miniPoster img {
-      width: 70px;
-      height: 70px;
-      object-fit: cover;
-      object-position: center top;
-      border-radius: 7px;
+    /* ===== LOADING ===== */
+    .loadingOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(6, 6, 7, .82);
+      backdrop-filter: blur(10px);
     }
 
-    .miniPoster b {
+    .loadingOverlay.show { display: grid; }
+
+    .loadingPanel {
+      width: min(100%, 320px);
+      padding: 28px 22px;
+      border-top: 3px solid var(--red);
+      background: #0e0e10;
+      color: #fff;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .loaderRing {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      border: 3px solid rgba(255, 255, 255, .12);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loadingPanel strong {
       display: block;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .loadingPanel p {
+      margin: 8px 0 18px;
+      color: rgba(255, 255, 255, .65);
       font-size: 13px;
-      font-weight: 1000;
+      line-height: 1.55;
+      font-weight: 500;
     }
 
-    .miniPoster small {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.45;
-      font-weight: 800;
+    .progressTrack {
+      height: 3px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .progressBar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #fff, var(--red));
+      transition: width .18s ease;
+    }
+
+    .progressText {
+      margin-top: 10px;
+      color: rgba(255, 255, 255, .85);
+      font-family: var(--display);
+      font-size: 18px;
+      letter-spacing: .08em;
     }
 
     @media (max-width: 380px) {
-      .authHero { padding: 16px 12px 14px; }
-      .authInner { min-height: calc(100svh - 30px); gap: 12px; }
-      .brandMark b { font-size: 14px; }
-      .brandMark small { font-size: 9px; }
-      .authCopy { padding-top: 8px; }
-      .authCopy h1 { margin: 10px 0 7px; }
-      .authCopy p { font-size: 13px; line-height: 1.5; }
-      .authCard { padding: 12px; }
-      input, select { min-height: 50px; }
-      .pinRow,
-      .formSplit { grid-template-columns: 1fr; }
-      .weekHeroTop { grid-template-columns: 96px 1fr; }
-      .weekNo { font-size: 16px; }
-      .weekInfo strong { font-size: 22px; }
-      .score { font-size: 16px; }
+      .authInner { padding: 22px 16px 18px; gap: 22px; }
+      .brandBlock .store { font-size: 48px; }
+      .eventBoard strong { font-size: 40px; }
+      .entryBoard input { font-size: 36px; }
     }
   </style>
 </head>
@@ -754,28 +724,27 @@
     <section class="view active" id="authView">
       <div class="authHero">
         <div class="authInner">
-          <div class="brandMark">
-            <b>JOYFIT24 経堂</b>
-            <small>9TH ANNIVERSARY CHALLENGE</small>
+          <div class="brandBlock">
+            <p class="anniversary">9th Anniversary Challenge</p>
+            <p class="store">JOYFIT24<br><span>経堂</span></p>
           </div>
 
-          <div class="authCopy">
-            <span class="label">Week 1 テスト公開中</span>
-            <h1>9周年<br>チャレンジ</h1>
-            <p>ニックネームだけで参加できます。ランキングには個人が特定されない名前だけ表示されます。</p>
-            <div class="motionLine"></div>
+          <div class="authLead">
+            <h1>記録を残して、<br>ランキングに乗る。</h1>
+            <p>ニックネームだけで参加できます。表示されるのは個人が特定されない名前だけです。</p>
+            <div class="authPulse" aria-hidden="true"></div>
           </div>
 
-          <form class="authCard" id="loginForm">
+          <form class="loginBoard" id="loginForm">
             <label>
               ニックネーム
               <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
-              <span class="fieldHint">本名ではなく、個人が特定されにくい名前で参加してください。</span>
+              <span class="fieldHint">本名ではなく、特定されにくい名前で参加してください。</span>
             </label>
             <label>
               4桁パスワード
               <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
-              <span class="fieldHint">次回以降も同じニックネームと4桁パスワードで入れます。</span>
+              <span class="fieldHint">次回も同じニックネームと4桁で入れます。</span>
             </label>
             <button class="primaryButton" type="submit" id="loginButton">ログイン</button>
             <div class="message" id="authMessage"></div>
@@ -784,54 +753,51 @@
       </div>
     </section>
 
-    <section class="view" id="appView">
+    <section class="view appView" id="appView">
       <header class="shellHeader">
         <div class="headerTop">
-          <div class="headerTitle">
-            <small>9周年チャレンジ</small>
+          <div class="headerBrand">
+            <span class="eyebrow">JOYFIT24 経堂</span>
             <b id="accountName">ゲスト</b>
           </div>
           <button class="logout" type="button" id="logoutButton">ログアウト</button>
         </div>
 
-        <div class="weekHero">
-          <div class="weekHeroTop">
-            <div class="weekNo" id="weekNo">Week 1</div>
-            <div class="weekInfo">
-              <span id="currentPeriod">8/3(月) - 8/9(日)</span>
-              <strong id="currentEvent">握力測定</strong>
-            </div>
+        <div class="eventBoard">
+          <div class="eventMeta">
+            <span id="weekNo">Week 1</span>
+            <span id="accountMeta">会員</span>
           </div>
+          <strong id="currentEvent">握力測定</strong>
+          <div class="period" id="currentPeriod">8/3(月) - 8/9(日)</div>
         </div>
       </header>
 
       <nav class="tabs" aria-label="表示切替">
-        <button class="tabButton active" type="button" data-tab="entryPanel">記録入力</button>
+        <button class="tabButton active" type="button" data-tab="entryPanel">記録する</button>
         <button class="tabButton" type="button" data-tab="rankingPanel">ランキング</button>
       </nav>
 
       <section class="section active" id="entryPanel">
-        <div class="surface">
+        <div class="entryBoard">
           <div class="sectionHead">
-            <h2>今日の記録</h2>
-            <span id="accountMeta">会員</span>
+            <h2>TODAY</h2>
+            <span>最大3回 / 1日1回</span>
           </div>
 
-          <div class="scoreGuide">
-            <div>
+          <div class="scoreStage">
+            <div class="guide">
               <b id="guideEvent">握力測定</b>
-              <small>数字だけ入力してください。同じ日は1回まで、1週間で最大3回まで登録できます。</small>
+              <span class="unit" id="unitBadge">kg</span>
             </div>
-            <div class="unitBadge" id="unitBadge">kg</div>
+            <small>数字だけ入力してください。同じ日は1回まで、1週間で最大3回まで登録できます。</small>
           </div>
 
           <form class="formGrid" id="entryForm">
-            <div class="formSplit">
-              <label>
-                記録
-                <input name="score" inputmode="decimal" placeholder="例：55.0" required>
-              </label>
-            </div>
+            <label>
+              記録
+              <input name="score" inputmode="decimal" placeholder="55.0" required>
+            </label>
             <button class="primaryButton" type="submit">記録を送信する</button>
             <div class="message" id="entryMessage"></div>
           </form>
@@ -839,30 +805,30 @@
       </section>
 
       <section class="section" id="rankingPanel">
-        <div class="surface">
+        <div class="rankBoard">
           <div class="sectionHead">
-            <h2>今週のTOP10</h2>
+            <h2>THIS WEEK</h2>
             <span id="unitLabel">合計 kg</span>
           </div>
           <ol class="ranking" id="rankingList"></ol>
         </div>
 
-        <div class="surface" style="margin-top:14px">
+        <div class="rankBoard">
           <div class="sectionHead">
-            <h2>過去Week</h2>
-            <span>種目別TOP</span>
+            <h2>PAST WEEKS</h2>
+            <span>種目別</span>
           </div>
           <div class="weeks" id="weekChips"></div>
           <ol class="ranking" id="historyList"></ol>
         </div>
       </section>
-
     </section>
+
     <div class="loadingOverlay" id="loadingOverlay" aria-live="polite" aria-hidden="true">
       <div class="loadingPanel">
         <div class="loaderRing" aria-hidden="true"></div>
-        <strong>ログイン中です</strong>
-        <p>お待ちください。参加情報を確認しています。</p>
+        <strong id="loadingTitle">処理中です</strong>
+        <p id="loadingDetail">お待ちください。</p>
         <div class="progressTrack"><div class="progressBar" id="progressBar"></div></div>
         <div class="progressText" id="progressText">0%</div>
       </div>
@@ -916,7 +882,7 @@
       const current = getCurrentWeek();
       document.getElementById("accountName").textContent = state.session.nickname || "ゲスト";
       document.getElementById("accountMeta").textContent = state.session.division === "staff" ? "スタッフ" : "会員";
-      document.getElementById("weekNo").textContent = `Week ${current.week}`;
+      document.getElementById("weekNo").textContent = `WEEK ${current.week}`;
       document.getElementById("currentEvent").textContent = current.event;
       document.getElementById("currentPeriod").textContent = formatPeriod(current);
       document.getElementById("guideEvent").textContent = current.event;
@@ -955,7 +921,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = `weekChip ${w.week === state.selectedWeek ? "active" : ""}`;
-        button.textContent = `Week ${w.week} ${w.event}`;
+        button.textContent = `W${w.week} ${w.event}`;
         button.addEventListener("click", () => {
           state.selectedWeek = w.week;
           render();
@@ -964,19 +930,24 @@
       });
     }
 
-    async function loadData() {
+    async function loadData(options = {}) {
+      const silent = Boolean(options.silent);
       try {
         const data = await api({ action: "list" });
         if (data.ok) {
           state.records = data.records || [];
           state.rankings = data.rankings || {};
-        } else {
+        } else if (!silent) {
           showMessage("entryMessage", data.message || "データを取得できませんでした。", false);
         }
       } catch (error) {
-        showMessage("entryMessage", "データ取得に失敗しました。GASの公開設定かデプロイ更新を確認してください。", false);
+        if (!silent) {
+          showMessage("entryMessage", "データ取得に失敗しました。GASの公開設定かデプロイ更新を確認してください。", false);
+        }
+        throw error;
+      } finally {
+        render();
       }
-      render();
     }
 
     async function login(nickname, pin) {
@@ -1045,25 +1016,40 @@
       const form = new FormData(event.currentTarget);
       const button = document.getElementById("loginButton");
       showMessage("authMessage", "", true);
-      setLoginLoading(true);
       button.disabled = true;
+      setBusyLoading(true, {
+        title: "ログイン中です",
+        detail: "参加情報を確認しています。"
+      });
       try {
         const data = await login(
           String(form.get("nickname") || "").trim(),
           String(form.get("pin") || "").trim()
         );
         if (!data.ok) {
+          setBusyLoading(false);
           showMessage("authMessage", data.message || "ログインできませんでした。ニックネームと4桁パスワードを確認してください。", false);
           return;
         }
-        completeLoginLoading();
+
+        render();
+        setBusyLoading(true, {
+          title: "読み込み中です",
+          detail: `${getCurrentWeek().event}の画面を準備しています。`
+        });
         event.currentTarget.reset();
-        loadData();
+        await loadData({ silent: true });
+        await finishBusyLoading();
         showMessage("entryMessage", "ログインしました。記録を入力できます。", true);
       } catch (error) {
-        showMessage("authMessage", "ログイン情報を保存できませんでした。もう一度入力してください。", false);
+        setBusyLoading(false);
+        if (state.session && state.session.token) {
+          render();
+          showMessage("entryMessage", "ログインはできました。通信が不安定なため、ランキングの再読み込みをお試しください。", false);
+        } else {
+          showMessage("authMessage", "ログイン情報を保存できませんでした。もう一度入力してください。", false);
+        }
       } finally {
-        window.setTimeout(() => setLoginLoading(false), 240);
         button.disabled = false;
       }
     });
@@ -1072,6 +1058,7 @@
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       const current = getCurrentWeek();
+      const button = event.currentTarget.querySelector('button[type="submit"]');
       const payload = {
         week: current.week,
         event: current.event,
@@ -1083,22 +1070,36 @@
         showMessage("entryMessage", "記録を数字で入力してください。", false);
         return;
       }
+
+      button.disabled = true;
+      setBusyLoading(true, {
+        title: "記録を送信中です",
+        detail: `${current.event}の記録を登録しています。`
+      });
       try {
         const result = await submitRecord(payload);
         if (!result.ok) {
+          setBusyLoading(false);
           showMessage("entryMessage", result.message || "送信できませんでした。", false);
           return;
         }
-        if (result.record) {
-          state.records.push(result.record);
-          render();
-        }
-        showMessage("entryMessage", "送信完了。ランキングに反映しました。", true);
+        setBusyLoading(true, {
+          title: "反映しています",
+          detail: "ランキングを更新しています。"
+        });
         event.currentTarget.reset();
-        await loadData();
+        await loadData({ silent: true });
+        await finishBusyLoading();
+        const attemptLabel = result.record && result.record.attempt
+          ? `${result.record.attempt}回目の記録を登録しました。`
+          : "送信完了。ランキングに反映しました。";
+        showMessage("entryMessage", attemptLabel, true);
       } catch (error) {
-        await loadData();
+        try { await loadData({ silent: true }); } catch (_) {}
+        setBusyLoading(false);
         showMessage("entryMessage", "通信確認に時間がかかりました。記録が入っている場合があります。ランキングを確認してください。", false);
+      } finally {
+        button.disabled = false;
       }
     });
 
@@ -1127,13 +1128,18 @@
     let loadingTimer = null;
     let loadingPercent = 0;
 
-    function setLoginLoading(active) {
+    function setBusyLoading(active, copy = {}) {
       const overlay = document.getElementById("loadingOverlay");
       if (active) {
-        loadingPercent = 0;
+        if (copy.title) document.getElementById("loadingTitle").textContent = copy.title;
+        if (copy.detail) document.getElementById("loadingDetail").textContent = copy.detail;
+        const alreadyOpen = overlay.classList.contains("show");
         overlay.classList.add("show");
         overlay.setAttribute("aria-hidden", "false");
-        updateProgress(0);
+        if (!alreadyOpen) {
+          loadingPercent = 0;
+          updateProgress(0);
+        }
         window.clearInterval(loadingTimer);
         loadingTimer = window.setInterval(() => {
           const next = loadingPercent < 70 ? loadingPercent + 8 : loadingPercent + 2;
@@ -1148,9 +1154,15 @@
       updateProgress(0);
     }
 
-    function completeLoginLoading() {
-      window.clearInterval(loadingTimer);
-      updateProgress(100);
+    function finishBusyLoading() {
+      return new Promise(resolve => {
+        window.clearInterval(loadingTimer);
+        updateProgress(100);
+        window.setTimeout(() => {
+          setBusyLoading(false);
+          resolve();
+        }, 280);
+      });
     }
 
     function updateProgress(value) {
@@ -1168,7 +1180,11 @@
     }
 
     render();
-    if (state.session) loadData();
+    if (state.session) {
+      loadData({ silent: true }).catch(() => {
+        showMessage("entryMessage", "データ取得に失敗しました。通信状況を確認してください。", false);
+      });
+    }
   </script>
 </body>
 </html>
