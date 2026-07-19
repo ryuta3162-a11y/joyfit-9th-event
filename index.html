@@ -447,9 +447,9 @@
 
     .sectionHead h2 {
       margin: 0;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 900;
-      letter-spacing: .14em;
+      letter-spacing: .04em;
     }
 
     .sectionHead span {
@@ -547,25 +547,89 @@
 
 
 
+    .myRecordCard,
+    .topRecordCard {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 14px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(18, 18, 18, .08);
+      background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+      box-shadow: 0 8px 20px rgba(20, 20, 20, .08), 0 1px 0 rgba(255,255,255,.8) inset;
+    }
+
+    .myRecordCard {
+      border-color: rgba(208, 18, 45, .22);
+      background: linear-gradient(180deg, #fff 0%, #fff7f8 100%);
+      box-shadow: 0 10px 24px rgba(208, 18, 45, .12), 0 1px 0 rgba(255,255,255,.9) inset;
+    }
+
+    .myRecordCard .label,
+    .topRecordCard .label {
+      color: var(--mute);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    .myRecordCard .valueRow,
+    .topRecordCard .valueRow {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .myRecordCard .who,
+    .topRecordCard .who {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .myRecordCard .value,
+    .topRecordCard .value {
+      flex: none;
+      color: var(--red);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .myRecordCard .hint,
+    .topRecordCard .hint {
+      color: var(--mute);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .ranking {
       display: grid;
-      gap: 0;
+      gap: 8px;
       margin: 0;
       padding: 0;
       list-style: none;
-      border-top: 1px solid var(--line);
     }
 
     .rankItem {
       display: grid;
-      grid-template-columns: 40px 1fr auto;
+      grid-template-columns: 42px 1fr auto;
       align-items: center;
       gap: 12px;
-      min-height: 62px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--line);
-      background: transparent;
+      min-height: 64px;
+      padding: 10px 12px;
+      border: 1px solid rgba(18, 18, 18, .08);
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(20, 20, 20, .06);
       animation: rankIn .4s ease both;
+    }
+
+    .rankItem.mine {
+      border-color: rgba(208, 18, 45, .28);
+      background: #fffafb;
     }
 
     .rankItem:nth-child(1) { animation-delay: .02s; }
@@ -575,30 +639,40 @@
     .rankItem:nth-child(5) { animation-delay: .14s; }
 
     @keyframes rankIn {
-      from { opacity: 0; transform: translateX(-6px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: none; }
     }
 
-    .rankItem:nth-child(1) .place {
-      background: var(--gold);
-      color: #111;
-    }
-
-    .rankItem:nth-child(1) .score {
-      color: var(--ink);
-    }
-
     .place {
-      font-weight: 900;
       display: grid;
       place-items: center;
-      width: 34px;
+      width: 36px;
       aspect-ratio: 1;
-      border-radius: 0;
-      background: var(--board);
+      border-radius: 50%;
+      background: #2a2a2a;
       color: #fff;
-      font-size: 18px;
+      font-size: 15px;
+      font-weight: 900;
       letter-spacing: .02em;
+      box-shadow: 0 3px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.25);
+    }
+
+    .place.medal-gold {
+      background: linear-gradient(160deg, #f6e27a, #d4a017 55%, #a67c00);
+      color: #4a3200;
+      box-shadow: 0 3px 0 #8a6500, inset 0 1px 0 rgba(255,255,255,.45);
+    }
+
+    .place.medal-silver {
+      background: linear-gradient(160deg, #f2f4f7, #b8c0c8 55%, #8e99a3);
+      color: #2f363c;
+      box-shadow: 0 3px 0 #6f7a84, inset 0 1px 0 rgba(255,255,255,.55);
+    }
+
+    .place.medal-bronze {
+      background: linear-gradient(160deg, #f0c19a, #c98643 55%, #8f5a28);
+      color: #3f2410;
+      box-shadow: 0 3px 0 #6d421c, inset 0 1px 0 rgba(255,255,255,.35);
     }
 
     .name {
@@ -615,40 +689,49 @@
       margin-top: 3px;
       color: var(--mute);
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 700;
     }
 
     .score {
       color: var(--red);
       font-weight: 900;
-      font-size: 24px;
+      font-size: 22px;
       letter-spacing: .02em;
       white-space: nowrap;
+    }
+
+    .rankItem.medal-1 .score,
+    .rankItem.medal-2 .score,
+    .rankItem.medal-3 .score {
+      color: var(--ink);
     }
 
     .weeks {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
+      margin-bottom: 12px;
     }
 
     .weekChip {
       min-height: 52px;
       padding: 8px 10px;
-      border: 1px solid var(--line);
+      border: 1px solid rgba(18, 18, 18, .1);
       border-radius: 0;
-      background: transparent;
+      background: #fff;
       color: var(--ink);
       text-align: left;
       font-size: 12px;
       line-height: 1.35;
       font-weight: 700;
+      box-shadow: 0 4px 10px rgba(20, 20, 20, .05);
     }
 
     .weekChip.active {
       border-color: var(--ink);
       background: var(--board);
       color: #fff;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .18);
     }
 
     .rankBoard + .rankBoard {
@@ -913,15 +996,31 @@
       <section class="section" id="rankingPanel">
         <div class="rankBoard">
           <div class="sectionHead">
-            <h2>THIS WEEK</h2>
+            <h2>今週のランキング</h2>
             <span id="unitLabel">合計 kg</span>
+          </div>
+          <div class="myRecordCard" id="myRecordCard">
+            <div class="label">あなたの記録</div>
+            <div class="valueRow">
+              <span class="who" id="myRecordName">—</span>
+              <span class="value" id="myRecordValue">—</span>
+            </div>
+            <div class="hint" id="myRecordHint">まだ記録がありません</div>
+          </div>
+          <div class="topRecordCard" id="topRecordCard">
+            <div class="label">今週の最高記録</div>
+            <div class="valueRow">
+              <span class="who" id="topRecordName">—</span>
+              <span class="value" id="topRecordValue">—</span>
+            </div>
+            <div class="hint" id="topRecordHint">まだ記録がありません</div>
           </div>
           <ol class="ranking" id="rankingList"></ol>
         </div>
 
         <div class="rankBoard">
           <div class="sectionHead">
-            <h2>PAST WEEKS</h2>
+            <h2>他の週のランキング</h2>
             <span>種目別</span>
           </div>
           <div class="weeks" id="weekChips"></div>
@@ -1079,17 +1178,71 @@
       const current = getCurrentWeek();
       document.getElementById("accountName").textContent = state.session.nickname || "ゲスト";
       document.getElementById("accountMeta").textContent = state.session.division === "staff" ? "スタッフ" : "会員";
-      document.getElementById("weekNo").textContent = `WEEK ${current.week}`;
+      document.getElementById("weekNo").textContent = `第${current.week}週`;
       document.getElementById("currentEvent").textContent = current.event;
       document.getElementById("currentPeriod").textContent = formatPeriod(current);
       document.getElementById("guideEvent").textContent = current.event;
       document.getElementById("unitBadge").textContent = current.unit;
-      document.getElementById("unitLabel").textContent = `合計 ${current.unit}`;
+      document.getElementById("unitLabel").textContent = `合計（${current.unit}）`;
       applyScoreInputRules();
       updateEntryAvailability();
+      renderMyAndTopRecords(current.week);
       renderRanking("rankingList", current.week);
       renderWeekChips();
       renderRanking("historyList", state.selectedWeek);
+    }
+
+    function isMyRow(row) {
+      if (!state.session) return false;
+      const nick = String(state.session.nickname || "");
+      return nick && String(row.displayName || "") === nick;
+    }
+
+    function getMyWeekStats(weekNo) {
+      if (!state.session) return null;
+      const id = String(state.session.participantId || "");
+      const nick = String(state.session.nickname || "");
+      const mine = state.records.filter(r => {
+        const samePerson = (id && r.participantId === id) || (nick && r.displayName === nick);
+        return samePerson && Number(r.week) === Number(weekNo);
+      });
+      if (!mine.length) return null;
+      const scores = mine.map(r => Number(r.score)).filter(Number.isFinite);
+      if (!scores.length) return null;
+      return {
+        total: scores.reduce((sum, n) => sum + n, 0),
+        best: Math.max(...scores),
+        attempts: scores.length
+      };
+    }
+
+    function medalClass(rank) {
+      if (rank === 1) return "medal-gold";
+      if (rank === 2) return "medal-silver";
+      if (rank === 3) return "medal-bronze";
+      return "";
+    }
+
+    function renderMyAndTopRecords(weekNo) {
+      const w = weeks.find(item => item.week === weekNo) || getCurrentWeek();
+      const rows = state.rankings[String(weekNo)] || [];
+      const top = rows[0];
+      const my = getMyWeekStats(weekNo);
+
+      document.getElementById("topRecordName").textContent = top ? top.displayName : "—";
+      document.getElementById("topRecordValue").textContent = top ? `${formatScore(top.total)} ${w.unit}` : "—";
+      document.getElementById("topRecordHint").textContent = top
+        ? `1位・${top.attempts}回記録`
+        : "まだ記録がありません";
+
+      document.getElementById("myRecordName").textContent = state.session ? (state.session.nickname || "あなた") : "あなた";
+      if (my) {
+        document.getElementById("myRecordValue").textContent = `${formatScore(my.total)} ${w.unit}`;
+        document.getElementById("myRecordHint").textContent = `合計 ${formatScore(my.total)} ${w.unit} ／ ベスト ${formatScore(my.best)} ${w.unit}（${my.attempts}回）`;
+      } else {
+        document.getElementById("myRecordValue").textContent = "—";
+        document.getElementById("myRecordHint").textContent = "まだ記録がありません";
+      }
     }
 
     function renderRanking(target, weekNo) {
@@ -1098,15 +1251,17 @@
       const rows = state.rankings[String(weekNo)] || [];
       list.innerHTML = "";
       if (!rows.length) {
-        list.innerHTML = `<li class="rankItem"><div class="place">-</div><div class="name">まだ記録がありません<span class="sub">最初の記録をお待ちしています</span></div><div class="score">0 ${w.unit}</div></li>`;
+        list.innerHTML = `<li class="rankItem"><div class="place">-</div><div class="name">まだ記録がありません<span class="sub">最初の記録をお待ちしています</span></div><div class="score">—</div></li>`;
         return;
       }
       rows.forEach(row => {
         const li = document.createElement("li");
-        li.className = "rankItem";
+        const medal = medalClass(row.rank);
+        const mine = isMyRow(row);
+        li.className = `rankItem${medal ? ` medal-${row.rank}` : ""}${mine ? " mine" : ""}`;
         li.innerHTML = `
-          <div class="place">${row.rank}</div>
-          <div class="name">${escapeHtml(row.displayName)}${row.division === "staff" ? " STAFF" : ""}<span class="sub">${row.attempts}回記録</span></div>
+          <div class="place ${medal}">${row.rank}</div>
+          <div class="name">${escapeHtml(row.displayName)}${row.division === "staff" ? " スタッフ" : ""}${mine ? "（あなた）" : ""}<span class="sub">${row.attempts}回記録</span></div>
           <div class="score">${formatScore(row.total)} ${w.unit}</div>
         `;
         list.appendChild(li);
@@ -1120,7 +1275,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = `weekChip ${w.week === state.selectedWeek ? "active" : ""}`;
-        button.textContent = `W${w.week} ${w.event}`;
+        button.textContent = `第${w.week}週 ${w.event}`;
         button.addEventListener("click", () => {
           state.selectedWeek = w.week;
           render();
