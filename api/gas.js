@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
       redirect: "follow",
       headers: {
         Accept: "application/json,text/plain,*/*",
-        "User-Agent": "joyfit-9th-event-proxy/1.0",
+        "User-Agent": "JOYFIT24-KYODO-9th-event-proxy/1.0",
       },
     });
     const text = await response.text();

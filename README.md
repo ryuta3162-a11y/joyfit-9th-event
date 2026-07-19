@@ -1,4 +1,6 @@
-# JOYFIT24 9周年チャレンジ 特設ページ
+# JOYFIT24 経堂 9周年チャレンジ
+
+プロジェクト名: `JOYFIT24-KYODO-9th-event`
 
 ## 内容
 

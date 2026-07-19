@@ -69,18 +69,18 @@
       z-index: 1;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      gap: 18px;
+      justify-content: center;
+      gap: 22px;
       box-sizing: border-box;
       min-height: 100dvh;
       min-height: 100svh;
-      padding: calc(28px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+      padding: calc(72px + env(safe-area-inset-top, 0px)) 20px calc(56px + env(safe-area-inset-bottom, 0px));
     }
 
     .authStack {
       display: grid;
       gap: 14px;
-      margin-top: 8px;
+      margin-top: 0;
     }
 
     .brandBlock {
@@ -908,7 +908,10 @@
     .entryBoard.is-done #entryForm { display: none; }
 
     @media (max-width: 380px) {
-      .authInner { padding: 22px 16px 16px; gap: 14px; }
+      .authInner {
+        gap: 18px;
+        padding: calc(64px + env(safe-area-inset-top, 0px)) 16px calc(48px + env(safe-area-inset-bottom, 0px));
+      }
       .brandBlock .store { font-size: 28px; }
       .brandBlock .eventTitle { font-size: 18px; }
       .promoBoard p { font-size: 13px; line-height: 1.5; }
