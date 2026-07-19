@@ -148,6 +148,19 @@
       animation: softFade 2s ease-in-out .1s infinite alternate;
     }
 
+    .browserHint {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid rgba(208, 18, 45, .25);
+      background: rgba(208, 18, 45, .06);
+      color: var(--red-deep);
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .browserHint[hidden] { display: none; }
+
     .loginBoard {
       display: grid;
       gap: 12px;
@@ -921,6 +934,7 @@
             <div class="promoBoard" aria-label="チャレンジ案内">
               <p>1週間で最大3回チャレンジ！<br>参加するほど<span class="accent">くじのチャンスUP！</span></p>
             </div>
+            <p class="browserHint" id="browserHint" hidden></p>
 
             <div class="authGate" id="authGate">
               <button class="authGateButton primary" type="button" id="goRegister">新規登録はこちら</button>
@@ -1048,6 +1062,8 @@
   <script>
     const CONFIG = {
       gasEndpoint: "https://script.google.com/macros/s/AKfycbwHCmikLDfBN25bLcEkaLP6RlGyuf7Z6B64hGB0BJGcLQjxwiysATZ6qSdAZNl5h0m1RQ/exec",
+      gasProxy: "/api/gas",
+      requestTimeoutMs: 60000,
       testWeekOverride: 1
     };
 
@@ -1147,6 +1163,25 @@
         return "ニックネームもしくはパスワードが違います。\n店舗スタッフまでお声かけください";
       }
       return "登録に失敗しました。\n通信状況を確認するか、店舗スタッフまでお声かけください";
+    }
+
+    function normalizeClientPin(value) {
+      let raw = String(value || "").trim();
+      raw = raw.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+      raw = raw.replace(/[^\d]/g, "");
+      if (!raw) return "";
+      if (raw.length > 4) raw = raw.slice(0, 4);
+      return raw.padStart(4, "0");
+    }
+
+    function normalizeClientNickname(value) {
+      return String(value || "")
+        .normalize("NFKC")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/[<>]/g, "")
+        .trim()
+        .replace(/\s+/g, "")
+        .slice(0, 16);
     }
 
     function showAuthGate() {
@@ -1314,8 +1349,8 @@
     }
 
     async function login(nickname, pin, mode) {
-      const cleanNickname = String(nickname || "").trim().slice(0, 16);
-      const cleanPin = String(pin || "").trim();
+      const cleanNickname = normalizeClientNickname(nickname);
+      const cleanPin = normalizeClientPin(pin);
       const authMode = mode === "login" ? "login" : "register";
       if (!cleanNickname) return { ok: false, message: "ニックネームを入力してください。" };
       if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: "4桁パスワードを入力してください。" };
@@ -1354,7 +1389,34 @@
       return api({ action: "submit", token: state.session.token || "", payload: JSON.stringify(body) });
     }
 
-    function apiOnce(params) {
+    function apiViaProxy(params) {
+      return new Promise((resolve, reject) => {
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => {
+          controller.abort();
+          reject(new Error("request timeout"));
+        }, CONFIG.requestTimeoutMs);
+        const search = new URLSearchParams(params);
+        fetch(`${CONFIG.gasProxy}?${search.toString()}`, {
+          method: "GET",
+          signal: controller.signal,
+          cache: "no-store",
+          headers: { Accept: "application/json" }
+        })
+          .then(async response => {
+            window.clearTimeout(timeoutId);
+            if (!response.ok) throw new Error("proxy failed");
+            const data = await response.json();
+            resolve(data);
+          })
+          .catch(error => {
+            window.clearTimeout(timeoutId);
+            reject(error);
+          });
+      });
+    }
+
+    function apiViaJsonp(params) {
       return new Promise((resolve, reject) => {
         const callbackName = `joyfitCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const script = document.createElement("script");
@@ -1363,7 +1425,7 @@
           reject(new Error("request timeout"));
           script.remove();
           delete window[callbackName];
-        }, 35000);
+        }, CONFIG.requestTimeoutMs);
         window[callbackName] = data => {
           window.clearTimeout(timeoutId);
           resolve(data);
@@ -1376,22 +1438,55 @@
           script.remove();
           delete window[callbackName];
         };
+        script.async = true;
+        script.referrerPolicy = "no-referrer";
         script.src = `${CONFIG.gasEndpoint}?${search.toString()}`;
         document.body.appendChild(script);
       });
     }
 
-    async function api(params, retries = 1) {
+    function canUseProxy() {
+      return Boolean(CONFIG.gasProxy) && /^https?:$/i.test(window.location.protocol);
+    }
+
+    async function apiOnce(params) {
+      if (canUseProxy()) {
+        try {
+          return await apiViaProxy(params);
+        } catch (_) {
+          // ローカル確認やプロキシ未デプロイ時は JSONP にフォールバック
+        }
+      }
+      return apiViaJsonp(params);
+    }
+
+    async function api(params, retries = 2) {
       let lastError;
       for (let i = 0; i <= retries; i += 1) {
         try {
           return await apiOnce(params);
         } catch (error) {
           lastError = error;
-          if (i < retries) await new Promise(r => window.setTimeout(r, 700));
+          if (i < retries) await new Promise(r => window.setTimeout(r, 900));
         }
       }
       throw lastError;
+    }
+
+    function isInAppBrowser() {
+      const ua = navigator.userAgent || "";
+      return /Line\/|FBAN|FBAV|Instagram|Twitter|MicroMessenger|QBWebView|GSA\//i.test(ua);
+    }
+
+    function showBrowserHint() {
+      const el = document.getElementById("browserHint");
+      if (!el) return;
+      if (!isInAppBrowser()) {
+        el.hidden = true;
+        return;
+      }
+      el.hidden = false;
+      el.textContent = "通信できない場合は、右上メニューから「ブラウザで開く」を選んでください。";
     }
 
     document.querySelectorAll(".tabButton").forEach(button => {
@@ -1441,7 +1536,13 @@
           render();
           applyScoreInputRules();
         } else {
-          showMessage("authMessage", authFailMessage(authMode), false);
+          showMessage(
+            "authMessage",
+            authMode === "login"
+              ? "通信に失敗しました。\nもう一度お試しください。"
+              : "登録通信に失敗しました。\nもう一度お試しください。",
+            false
+          );
         }
       } finally {
         button.disabled = false;
@@ -1590,6 +1691,7 @@
 
     render();
     applyScoreInputRules();
+    showBrowserHint();
     if (state.session) {
       loadData({ silent: true }).catch(() => {});
     }

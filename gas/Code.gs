@@ -52,6 +52,11 @@ function doGet(e) {
 }
 
 function setupSheets() {
+  const cache = CacheService.getScriptCache();
+  if (cache.get('sheetsReady') === '1') {
+    return { ok: true, message: 'シート準備済みです。' };
+  }
+
   renameLegacySheetIfNeeded(LEGACY_PARTICIPANTS_SHEET, PARTICIPANTS_SHEET);
   renameLegacySheetIfNeeded(LEGACY_SESSIONS_SHEET, SESSIONS_SHEET);
 
@@ -67,12 +72,13 @@ function setupSheets() {
   }
 
   migrateLegacyRecordsIfNeeded();
+  cache.put('sheetsReady', '1', 21600);
   return { ok: true, message: 'シートを準備しました。' };
 }
 
 function login(nickname, pin, mode) {
   setupSheets();
-  const cleanNickname = cleanText(nickname, 16);
+  const cleanNickname = normalizeNickname(nickname);
   const cleanPin = normalizePin(pin);
   const modeName = String(mode || '').trim().toLowerCase();
   const loginError = {
@@ -89,7 +95,6 @@ function login(nickname, pin, mode) {
   let participant = findParticipantByNickname(cleanNickname);
 
   if (modeName === 'register') {
-    // 新規登録専用：既存ニックネームは不可。未登録のみ作成。
     if (participant) {
       return {
         ok: false,
@@ -105,7 +110,6 @@ function login(nickname, pin, mode) {
       };
     }
   } else {
-    // 再ログイン専用：スプレッドシート照合のみ。自動登録しない。
     if (!participant) return loginError;
     if (!participant.active) {
       return {
@@ -113,7 +117,14 @@ function login(nickname, pin, mode) {
         message: 'このニックネームは停止されています。\nスタッフにお声がけください。',
       };
     }
-    if (normalizePin(participant.pin) !== cleanPin) return loginError;
+    if (participant.pin !== cleanPin) return loginError;
+  }
+
+  if (!participant || !participant.participantId) {
+    return {
+      ok: false,
+      message: '参加情報の確認に失敗しました。\n店舗スタッフまでお声かけください',
+    };
   }
 
   const token = Utilities.getUuid() + Utilities.getUuid();
@@ -235,15 +246,15 @@ function resolveParticipantForRecord(token, body) {
   if (session) return findParticipant(session.participantId);
 
   // セッショントークンがない場合は既存参加者の照合のみ（自動新規作成しない）
-  const cleanNickname = cleanText(body && body.nickname, 16);
+  const cleanNickname = normalizeNickname(body && body.nickname);
   const cleanPin = normalizePin(body && body.pin);
   if (!cleanNickname || !/^[0-9]{4}$/.test(cleanPin)) return null;
 
   const participant = findParticipantByNickname(cleanNickname);
   if (!participant) return null;
   if (!participant.active) return null;
-  if (normalizePin(participant.pin) !== cleanPin) {
-    throw new Error('ニックネームもしくはパスワードが違います。店舗スタッフまでお声かけください');
+  if (participant.pin !== cleanPin) {
+    throw new Error('ニックネームもしくはパスワードが違います。\n店舗スタッフまでお声かけください');
   }
   return participant;
 }
@@ -297,10 +308,11 @@ function getParticipants() {
   return readRows(getSheet(PARTICIPANTS_SHEET), PARTICIPANT_HEADERS)
     .map(r => ({
       participantId: String(r.participantId || '').trim(),
-      nickname: String(r.nickname || '').trim(),
+      nickname: normalizeNickname(r.nickname),
+      nicknameKey: nicknameKey(r.nickname),
       pin: normalizePin(r.pin),
-      division: r.division === 'staff' ? 'staff' : 'member',
-      active: r.active === true || String(r.active).toUpperCase() === 'TRUE' || String(r.active) === '1',
+      division: String(r.division || '').trim().toLowerCase() === 'staff' ? 'staff' : 'member',
+      active: isParticipantActive(r.active),
     }))
     .filter(r => r.participantId && r.nickname);
 }
@@ -311,20 +323,36 @@ function findParticipant(participantId) {
 }
 
 function findParticipantByNickname(nickname) {
-  const key = cleanText(nickname, 16).toLowerCase();
-  return getParticipants().find(p => p.nickname.toLowerCase() === key);
+  const key = nicknameKey(nickname);
+  if (!key) return null;
+  return getParticipants().find(p => p.nicknameKey === key);
 }
 
 function createParticipant(nickname, pin) {
   const now = new Date().toISOString();
+  const cleanNickname = normalizeNickname(nickname);
+  const cleanPin = normalizePin(pin);
   const participant = {
     participantId: Utilities.getUuid(),
-    nickname,
-    pin,
+    nickname: cleanNickname,
+    pin: cleanPin,
     division: 'member',
     active: true,
   };
-  getSheet(PARTICIPANTS_SHEET).appendRow([participant.participantId, nickname, pin, 'member', true, '自動登録', now, now]);
+  const sheet = getSheet(PARTICIPANTS_SHEET);
+  sheet.appendRow([
+    participant.participantId,
+    participant.nickname,
+    participant.pin,
+    'member',
+    true,
+    '自動登録',
+    now,
+    now,
+  ]);
+  // PINが数値化されて先頭0落ちしないようテキスト書式で固定
+  const row = sheet.getLastRow();
+  sheet.getRange(row, 3).setNumberFormat('@').setValue(cleanPin);
   return participant;
 }
 
@@ -560,10 +588,47 @@ function cleanText(value, maxLength) {
   return String(value || '').trim().replace(/[<>]/g, '').slice(0, maxLength);
 }
 
+function normalizeNickname(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/[<>]/g, '')
+    .trim()
+    .replace(/\s+/g, '')
+    .slice(0, 16);
+}
+
+function nicknameKey(value) {
+  return normalizeNickname(value).toLowerCase();
+}
+
+function isParticipantActive(value) {
+  // 空欄は有効扱い。明示的な停止だけ無効にする（誤判定防止）
+  if (value === '' || value == null) return true;
+  if (value === true || value === 1) return true;
+  const raw = String(value).trim().toUpperCase();
+  if (!raw) return true;
+  if (raw === 'FALSE' || raw === '0' || raw === 'NG' || raw === 'NO' || raw === '停止') return false;
+  return raw === 'TRUE' || raw === '1' || raw === 'YES' || raw === '有効';
+}
+
 function normalizePin(value) {
-  const raw = String(value == null ? '' : value).trim();
+  if (value === '' || value == null) return '';
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const n = Math.trunc(value);
+    if (n < 0 || n > 9999) return '';
+    return String(n).padStart(4, '0');
+  }
+
+  if (Object.prototype.toString.call(value) === '[object Date]') return '';
+
+  let raw = String(value).trim();
+  // 全角数字 → 半角
+  raw = raw.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+  // 数字以外を除去（スペースや記号混入対策）
+  raw = raw.replace(/[^\d]/g, '');
   if (!raw) return '';
-  // スプレッドシートで数値化され先頭0が落ちた場合に備える
-  if (/^\d{1,4}$/.test(raw)) return raw.padStart(4, '0');
-  return raw;
+  if (raw.length > 4) raw = raw.slice(0, 4);
+  return raw.padStart(4, '0');
 }
