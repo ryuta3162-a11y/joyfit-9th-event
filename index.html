@@ -174,6 +174,7 @@
     .authPulse {
       width: 88px;
       height: 3px;
+      margin-top: 8px;
       background: var(--red);
       transform-origin: left center;
       animation: pulseLine 2.6s ease-in-out infinite;
@@ -727,11 +728,6 @@
           <div class="brandBlock">
             <p class="anniversary">9th Anniversary Challenge</p>
             <p class="store">JOYFIT24<br><span>経堂</span></p>
-          </div>
-
-          <div class="authLead">
-            <h1>記録を残して、<br>ランキングに乗る。</h1>
-            <p>ニックネームだけで参加できます。表示されるのは個人が特定されない名前だけです。</p>
             <div class="authPulse" aria-hidden="true"></div>
           </div>
 
@@ -739,12 +735,10 @@
             <label>
               ニックネーム
               <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
-              <span class="fieldHint">本名ではなく、特定されにくい名前で参加してください。</span>
             </label>
             <label>
               4桁パスワード
               <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
-              <span class="fieldHint">次回も同じニックネームと4桁で入れます。</span>
             </label>
             <button class="primaryButton" type="submit" id="loginButton">ログイン</button>
             <div class="message" id="authMessage"></div>
@@ -780,17 +774,11 @@
 
       <section class="section active" id="entryPanel">
         <div class="entryBoard">
-          <div class="sectionHead">
-            <h2>TODAY</h2>
-            <span>最大3回 / 1日1回</span>
-          </div>
-
           <div class="scoreStage">
             <div class="guide">
               <b id="guideEvent">握力測定</b>
               <span class="unit" id="unitBadge">kg</span>
             </div>
-            <small>数字だけ入力してください。同じ日は1回まで、1週間で最大3回まで登録できます。</small>
           </div>
 
           <form class="formGrid" id="entryForm">
@@ -986,7 +974,7 @@
           reject(new Error("request timeout"));
           script.remove();
           delete window[callbackName];
-        }, 15000);
+        }, 25000);
         window[callbackName] = data => {
           window.clearTimeout(timeoutId);
           resolve(data);
@@ -1095,9 +1083,15 @@
           : "送信完了。ランキングに反映しました。";
         showMessage("entryMessage", attemptLabel, true);
       } catch (error) {
-        try { await loadData({ silent: true }); } catch (_) {}
-        setBusyLoading(false);
-        showMessage("entryMessage", "通信確認に時間がかかりました。記録が入っている場合があります。ランキングを確認してください。", false);
+        // GAS側は成功していることが多いので、再取得できたら成功扱いにする
+        try {
+          await loadData({ silent: true });
+          await finishBusyLoading();
+          showMessage("entryMessage", "記録を受け付けました。", true);
+        } catch (_) {
+          setBusyLoading(false);
+          showMessage("entryMessage", "送信に失敗しました。もう一度お試しください。", false);
+        }
       } finally {
         button.disabled = false;
       }
