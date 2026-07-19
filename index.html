@@ -701,6 +701,116 @@
       color: var(--ink);
     }
 
+
+    .authGate {
+      display: grid;
+      gap: 10px;
+    }
+
+    .authGateButton {
+      width: 100%;
+      min-height: 54px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      background: #fff;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+
+    .authGateButton.primary {
+      border-color: var(--red);
+      background: var(--red);
+      color: #fff;
+    }
+
+    .authModeBanner {
+      margin: 0 0 4px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--red);
+      background: #fff5f6;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .authSwitch {
+      width: 100%;
+      min-height: 44px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: transparent;
+      color: var(--mute);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .loginBoard.is-hidden,
+    .authGate.is-hidden {
+      display: none;
+    }
+
+    .doneOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: #fff;
+    }
+
+    .doneOverlay.show { display: grid; }
+
+    .donePanel {
+      width: min(100%, 320px);
+      text-align: center;
+    }
+
+    .donePanel strong {
+      display: block;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.5;
+      letter-spacing: .04em;
+    }
+
+    .donePanel p {
+      margin: 10px 0 22px;
+      color: var(--mute);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .entryDone {
+      display: none;
+      padding: 28px 8px;
+      text-align: center;
+    }
+
+    .entryDone.show { display: block; }
+
+    .entryDone strong {
+      display: block;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .entryDone p {
+      margin: 8px 0 0;
+      color: var(--mute);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .entryBoard.is-done #entryForm { display: none; }
+
     @media (max-width: 380px) {
       .authInner { padding: 22px 16px 16px; gap: 14px; }
       .brandBlock .store { font-size: 28px; }
@@ -729,7 +839,13 @@
               <p>1週間で最大3回チャレンジ！<br>参加するほど<span class="accent">くじのチャンスUP！</span></p>
             </div>
 
-            <form class="loginBoard" id="loginForm">
+            <div class="authGate" id="authGate">
+              <button class="authGateButton primary" type="button" id="goRegister">新規登録はこちら</button>
+              <button class="authGateButton" type="button" id="goRelogin">再度ログインはこちら</button>
+            </div>
+
+            <form class="loginBoard is-hidden" id="loginForm">
+              <div class="authModeBanner" id="authModeBanner">新規登録はこちら</div>
               <label>
                 ニックネーム
                 <input name="nickname" autocomplete="nickname" maxlength="16" placeholder="例：タロウ" required>
@@ -738,7 +854,8 @@
                 4桁パスワード
                 <input name="pin" autocomplete="current-password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="例：1234" required>
               </label>
-              <button class="primaryButton" type="submit" id="loginButton">ログイン</button>
+              <button class="primaryButton" type="submit" id="loginButton">登録してはじめる</button>
+              <button class="authSwitch" type="button" id="authSwitch">再度ログインはこちら</button>
               <div class="message" id="authMessage"></div>
             </form>
           </div>
@@ -774,7 +891,7 @@
       </nav>
 
       <section class="section active" id="entryPanel">
-        <div class="entryBoard">
+        <div class="entryBoard" id="entryBoard">
           <form class="formGrid" id="entryForm">
             <div class="scoreStage">
               <label class="scoreTap" for="scoreInput">
@@ -786,6 +903,10 @@
             <button class="primaryButton" type="submit">記録を送信する</button>
             <div class="message" id="entryMessage"></div>
           </form>
+          <div class="entryDone" id="entryDone">
+            <strong>本日の測定は終了しました</strong>
+            <p>ランキングから結果を確認できます。</p>
+          </div>
         </div>
       </section>
 
@@ -808,6 +929,14 @@
         </div>
       </section>
     </section>
+
+    <div class="doneOverlay" id="doneOverlay" aria-live="polite" aria-hidden="true">
+      <div class="donePanel">
+        <strong>測定が完了しました。<br>ありがとうございました</strong>
+        <p>本日の記録はこれで終了です。</p>
+        <button class="primaryButton" type="button" id="doneToRanking">ランキングを見る</button>
+      </div>
+    </div>
 
     <div class="loadingOverlay" id="loadingOverlay" aria-live="polite" aria-hidden="true">
       <div class="loadingPanel">
@@ -834,7 +963,8 @@
       selectedWeek: getCurrentWeek().week,
       session: readSession(),
       records: [],
-      rankings: {}
+      rankings: {},
+      authMode: "register"
     };
 
     function getCurrentWeek() {
@@ -855,11 +985,96 @@
       return `${s.getMonth() + 1}/${s.getDate()}(${day[s.getDay()]}) - ${e.getMonth() + 1}/${e.getDate()}(${day[e.getDay()]})`;
     }
 
+    function todayKey() {
+      return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(new Date());
+    }
+
+    function measuredStorageKey() {
+      if (!state.session) return "";
+      const id = state.session.participantId || state.session.nickname || "";
+      return `joyfitMeasured:${id}`;
+    }
+
+    function markMeasuredToday() {
+      const key = measuredStorageKey();
+      if (!key) return;
+      localStorage.setItem(key, todayKey());
+    }
+
+    function hasMeasuredToday() {
+      if (!state.session) return false;
+      const key = todayKey();
+      const local = localStorage.getItem(measuredStorageKey());
+      if (local === key) return true;
+      const id = String(state.session.participantId || "");
+      const nick = String(state.session.nickname || "");
+      const week = getCurrentWeek().week;
+      return state.records.some(r => {
+        const samePerson = (id && r.participantId === id) || (nick && r.displayName === nick);
+        return samePerson && String(r.dateKey || "").slice(0, 10) === key && Number(r.week) === week;
+      });
+    }
+
+    function setAuthMode(mode) {
+      state.authMode = mode === "login" ? "login" : "register";
+      const gate = document.getElementById("authGate");
+      const form = document.getElementById("loginForm");
+      const banner = document.getElementById("authModeBanner");
+      const button = document.getElementById("loginButton");
+      const switchBtn = document.getElementById("authSwitch");
+      gate.classList.add("is-hidden");
+      form.classList.remove("is-hidden");
+      if (state.authMode === "login") {
+        banner.textContent = "再度ログインはこちら";
+        button.textContent = "ログイン";
+        switchBtn.textContent = "新規登録はこちら";
+      } else {
+        banner.textContent = "新規登録はこちら";
+        button.textContent = "登録してはじめる";
+        switchBtn.textContent = "再度ログインはこちら";
+      }
+      showMessage("authMessage", "", true);
+    }
+
+    function showAuthGate() {
+      document.getElementById("authGate").classList.remove("is-hidden");
+      document.getElementById("loginForm").classList.add("is-hidden");
+      document.getElementById("loginForm").reset();
+      showMessage("authMessage", "", true);
+    }
+
+    function updateEntryAvailability() {
+      const done = hasMeasuredToday();
+      const board = document.getElementById("entryBoard");
+      const doneBox = document.getElementById("entryDone");
+      if (!board || !doneBox) return;
+      board.classList.toggle("is-done", done);
+      doneBox.classList.toggle("show", done);
+    }
+
+    function showDoneOverlay(show) {
+      const overlay = document.getElementById("doneOverlay");
+      overlay.classList.toggle("show", show);
+      overlay.setAttribute("aria-hidden", show ? "false" : "true");
+    }
+
+    function openRankingTab() {
+      document.querySelectorAll(".tabButton").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === "rankingPanel");
+      });
+      document.querySelectorAll(".section").forEach(p => {
+        p.classList.toggle("active", p.id === "rankingPanel");
+      });
+    }
+
     function render() {
       const loggedIn = Boolean(state.session && state.session.token);
       document.getElementById("authView").classList.toggle("active", !loggedIn);
       document.getElementById("appView").classList.toggle("active", loggedIn);
-      if (!loggedIn) return;
+      if (!loggedIn) {
+        showDoneOverlay(false);
+        return;
+      }
 
       const current = getCurrentWeek();
       document.getElementById("accountName").textContent = state.session.nickname || "ゲスト";
@@ -871,6 +1086,7 @@
       document.getElementById("unitBadge").textContent = current.unit;
       document.getElementById("unitLabel").textContent = `合計 ${current.unit}`;
       applyScoreInputRules();
+      updateEntryAvailability();
       renderRanking("rankingList", current.week);
       renderWeekChips();
       renderRanking("historyList", state.selectedWeek);
@@ -1028,12 +1244,17 @@
         render();
         applyScoreInputRules();
         event.currentTarget.reset();
+        showAuthGate();
         try {
           await loadData({ silent: true });
         } catch (_) {
           render();
         }
         setBusyLoading(false);
+        if (hasMeasuredToday()) {
+          updateEntryAvailability();
+          openRankingTab();
+        }
       } catch (error) {
         setBusyLoading(false);
         if (state.session && state.session.token) {
@@ -1061,6 +1282,11 @@
       const raw = String(form.get("score") || "").trim();
       const score = Number(raw);
       showMessage("entryMessage", "", true);
+
+      if (hasMeasuredToday()) {
+        updateEntryAvailability();
+        return;
+      }
 
       if (current.week === 1) {
         if (!/^[0-9]{1,2}$/.test(raw) || score < 1 || score > 99) {
@@ -1090,9 +1316,12 @@
           return;
         }
         event.currentTarget.reset();
+        markMeasuredToday();
         applyScoreInputRules();
-        try { await loadData({ silent: true }); } catch (_) {}
+        try { await loadData({ silent: true }); } catch (_) { render(); }
         setBusyLoading(false);
+        updateEntryAvailability();
+        showDoneOverlay(true);
       } catch (error) {
         try { await loadData({ silent: true }); } catch (_) {}
         setBusyLoading(false);
@@ -1104,7 +1333,20 @@
     document.getElementById("logoutButton").addEventListener("click", () => {
       localStorage.removeItem("joyfitSession");
       state.session = null;
+      showDoneOverlay(false);
+      showAuthGate();
       render();
+    });
+
+    document.getElementById("goRegister").addEventListener("click", () => setAuthMode("register"));
+    document.getElementById("goRelogin").addEventListener("click", () => setAuthMode("login"));
+    document.getElementById("authSwitch").addEventListener("click", () => {
+      setAuthMode(state.authMode === "login" ? "register" : "login");
+    });
+    document.getElementById("doneToRanking").addEventListener("click", () => {
+      showDoneOverlay(false);
+      openRankingTab();
+      updateEntryAvailability();
     });
 
     function readSession() {
