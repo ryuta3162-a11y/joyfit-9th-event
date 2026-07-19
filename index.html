@@ -927,7 +927,7 @@
               <button class="authGateButton" type="button" id="goRelogin">再度ログインはこちら</button>
             </div>
 
-            <form class="loginBoard is-hidden" id="loginForm">
+            <form class="loginBoard is-hidden" id="loginForm" data-auth-mode="register">
               <div class="authModeBanner" id="authModeBanner">新規登録はこちら</div>
               <label>
                 ニックネーム
@@ -1121,6 +1121,7 @@
       const banner = document.getElementById("authModeBanner");
       const button = document.getElementById("loginButton");
       const switchBtn = document.getElementById("authSwitch");
+      form.dataset.authMode = state.authMode;
       gate.classList.add("is-hidden");
       form.classList.remove("is-hidden");
       if (state.authMode === "login") {
@@ -1133,6 +1134,19 @@
         switchBtn.textContent = "再度ログインはこちら";
       }
       showMessage("authMessage", "", true);
+    }
+
+    function currentAuthMode() {
+      const formMode = document.getElementById("loginForm")?.dataset?.authMode;
+      if (formMode === "login" || formMode === "register") return formMode;
+      return state.authMode === "login" ? "login" : "register";
+    }
+
+    function authFailMessage(mode) {
+      if (mode === "login") {
+        return "ニックネームもしくはパスワードが違います。\n店舗スタッフまでお声かけください";
+      }
+      return "登録に失敗しました。\n通信状況を確認するか、店舗スタッフまでお声かけください";
     }
 
     function showAuthGate() {
@@ -1299,15 +1313,24 @@
       }
     }
 
-    async function login(nickname, pin) {
+    async function login(nickname, pin, mode) {
       const cleanNickname = String(nickname || "").trim().slice(0, 16);
       const cleanPin = String(pin || "").trim();
+      const authMode = mode === "login" ? "login" : "register";
       if (!cleanNickname) return { ok: false, message: "ニックネームを入力してください。" };
       if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: "4桁パスワードを入力してください。" };
 
-      const data = await api({ action: "login", nickname: cleanNickname, pin: cleanPin });
+      const data = await api({
+        action: "login",
+        nickname: cleanNickname,
+        pin: cleanPin,
+        mode: authMode
+      });
       if (!data.ok || !data.session) {
-        return { ok: false, message: data.message || "ログインできませんでした。" };
+        return {
+          ok: false,
+          message: data.message || authFailMessage(authMode)
+        };
       }
 
       state.session = {
@@ -1382,17 +1405,19 @@
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       const button = document.getElementById("loginButton");
+      const authMode = currentAuthMode();
       showMessage("authMessage", "", true);
       button.disabled = true;
       setBusyLoading(true);
       try {
         const data = await login(
           String(form.get("nickname") || "").trim(),
-          String(form.get("pin") || "").trim()
+          String(form.get("pin") || "").trim(),
+          authMode
         );
         if (!data.ok) {
           setBusyLoading(false);
-          showMessage("authMessage", data.message || "ログインできませんでした。", false);
+          showMessage("authMessage", data.message || authFailMessage(authMode), false);
           return;
         }
 
@@ -1416,7 +1441,7 @@
           render();
           applyScoreInputRules();
         } else {
-          showMessage("authMessage", "ログインできませんでした。", false);
+          showMessage("authMessage", authFailMessage(authMode), false);
         }
       } finally {
         button.disabled = false;
@@ -1516,8 +1541,12 @@
         el.className = "message";
         return;
       }
-      el.textContent = text;
       el.className = `message show ${ok ? "ok" : "err"}`;
+      el.textContent = "";
+      String(text).split(/\n|<br\s*\/?>/i).forEach((line, index) => {
+        if (index > 0) el.appendChild(document.createElement("br"));
+        el.appendChild(document.createTextNode(line));
+      });
     }
 
     function setBusyLoading(active) {

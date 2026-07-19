@@ -40,7 +40,7 @@ function doGet(e) {
   try {
     if (action === 'health') return jsonResponse({ ok: true, message: 'ok' }, e);
     if (action === 'setup') return jsonResponse(setupSheets(), e);
-    if (action === 'login') return jsonResponse(login(params.nickname, params.pin), e);
+    if (action === 'login') return jsonResponse(login(params.nickname, params.pin, params.mode), e);
     if (action === 'submit') {
       const body = JSON.parse(String(params.payload || '{}'));
       return jsonResponse(upsertRecord(params.token, body, e), e);
@@ -70,17 +70,51 @@ function setupSheets() {
   return { ok: true, message: 'シートを準備しました。' };
 }
 
-function login(nickname, pin) {
+function login(nickname, pin, mode) {
   setupSheets();
   const cleanNickname = cleanText(nickname, 16);
-  const cleanPin = String(pin || '').trim();
+  const cleanPin = normalizePin(pin);
+  const modeName = String(mode || '').trim().toLowerCase();
+  const loginError = {
+    ok: false,
+    message: 'ニックネームもしくはパスワードが違います。\n店舗スタッフまでお声かけください',
+  };
+
+  if (modeName !== 'register' && modeName !== 'login') {
+    return { ok: false, message: '新規登録または再度ログインを選び直してください。' };
+  }
   if (!cleanNickname) return { ok: false, message: 'ニックネームを入力してください。' };
   if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: '4桁パスワードを入力してください。' };
 
   let participant = findParticipantByNickname(cleanNickname);
-  if (!participant) participant = createParticipant(cleanNickname, cleanPin);
-  if (!participant.active) return { ok: false, message: 'このニックネームは停止されています。スタッフにお声がけください。' };
-  if (String(participant.pin) !== cleanPin) return { ok: false, message: '4桁パスワードが違います。' };
+
+  if (modeName === 'register') {
+    // 新規登録専用：既存ニックネームは不可。未登録のみ作成。
+    if (participant) {
+      return {
+        ok: false,
+        message: 'このニックネームは既に登録されています。\n再度ログインからお進みください。',
+      };
+    }
+    try {
+      participant = createParticipant(cleanNickname, cleanPin);
+    } catch (error) {
+      return {
+        ok: false,
+        message: '登録処理に失敗しました。\n店舗スタッフまでお声かけください',
+      };
+    }
+  } else {
+    // 再ログイン専用：スプレッドシート照合のみ。自動登録しない。
+    if (!participant) return loginError;
+    if (!participant.active) {
+      return {
+        ok: false,
+        message: 'このニックネームは停止されています。\nスタッフにお声がけください。',
+      };
+    }
+    if (normalizePin(participant.pin) !== cleanPin) return loginError;
+  }
 
   const token = Utilities.getUuid() + Utilities.getUuid();
   const now = new Date();
@@ -200,13 +234,17 @@ function resolveParticipantForRecord(token, body) {
   const session = findSession(token);
   if (session) return findParticipant(session.participantId);
 
+  // セッショントークンがない場合は既存参加者の照合のみ（自動新規作成しない）
   const cleanNickname = cleanText(body && body.nickname, 16);
-  const cleanPin = String(body && body.pin || '').trim();
+  const cleanPin = normalizePin(body && body.pin);
   if (!cleanNickname || !/^[0-9]{4}$/.test(cleanPin)) return null;
 
-  let participant = findParticipantByNickname(cleanNickname);
-  if (!participant) return createParticipant(cleanNickname, cleanPin);
-  if (String(participant.pin) !== cleanPin) throw new Error('4桁パスワードが違います。');
+  const participant = findParticipantByNickname(cleanNickname);
+  if (!participant) return null;
+  if (!participant.active) return null;
+  if (normalizePin(participant.pin) !== cleanPin) {
+    throw new Error('ニックネームもしくはパスワードが違います。店舗スタッフまでお声かけください');
+  }
   return participant;
 }
 
@@ -260,7 +298,7 @@ function getParticipants() {
     .map(r => ({
       participantId: String(r.participantId || '').trim(),
       nickname: String(r.nickname || '').trim(),
-      pin: String(r.pin || '').trim(),
+      pin: normalizePin(r.pin),
       division: r.division === 'staff' ? 'staff' : 'member',
       active: r.active === true || String(r.active).toUpperCase() === 'TRUE' || String(r.active) === '1',
     }))
@@ -520,4 +558,12 @@ function cleanCallbackName(value) {
 
 function cleanText(value, maxLength) {
   return String(value || '').trim().replace(/[<>]/g, '').slice(0, maxLength);
+}
+
+function normalizePin(value) {
+  const raw = String(value == null ? '' : value).trim();
+  if (!raw) return '';
+  // スプレッドシートで数値化され先頭0が落ちた場合に備える
+  if (/^\d{1,4}$/.test(raw)) return raw.padStart(4, '0');
+  return raw;
 }
