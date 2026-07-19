@@ -6,7 +6,7 @@
   <title>JOYFIT24 9周年チャレンジ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --red: #d0122d;
@@ -19,8 +19,7 @@
       --gold: #d4a017;
       --ok: #0f7a5a;
       --shadow: 0 18px 40px rgba(0, 0, 0, .28);
-      --display: "Bebas Neue", "Zen Kaku Gothic New", sans-serif;
-      --sans: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif;
+      --sans: "Noto Sans JP", "Hiragino Sans", sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -47,18 +46,83 @@
     button { cursor: pointer; }
 
     .app {
+      position: relative;
       width: min(100%, 430px);
       min-height: 100svh;
       margin: 0 auto;
+      overflow: hidden;
       background: #fff;
       box-shadow: 0 0 80px rgba(80, 20, 30, .18);
     }
 
     .view { display: none; }
-    .view.active { display: block; animation: viewIn .45s ease both; }
+    .view.active { display: block; }
 
-    @keyframes viewIn {
-      from { opacity: 0; transform: translateY(10px); }
+    .bootOverlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      background: #0e0e10;
+      transition: opacity .55s ease, visibility .55s ease;
+    }
+
+    .bootOverlay.is-done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .bootMark {
+      text-align: center;
+      color: #fff;
+      animation: bootPulse 1s ease both;
+    }
+
+    .bootMark strong {
+      display: block;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      line-height: 1.1;
+    }
+
+    .bootMark span {
+      display: block;
+      margin-top: 8px;
+      color: #d0122d;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .22em;
+    }
+
+    .bootMark i {
+      display: block;
+      width: 48px;
+      height: 3px;
+      margin: 16px auto 0;
+      background: #d0122d;
+      animation: pulseLine 1.2s ease-in-out infinite;
+    }
+
+    @keyframes bootPulse {
+      from { opacity: 0; transform: scale(.92); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .authInner.is-ready .brandBlock,
+    .authInner.is-ready .promoBoard,
+    .authInner.is-ready .loginBoard {
+      animation: riseIn .65s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    .authInner.is-ready .brandBlock { animation-delay: .05s; }
+    .authInner.is-ready .promoBoard { animation-delay: .18s; }
+    .authInner.is-ready .loginBoard { animation-delay: .32s; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(22px); }
       to { opacity: 1; transform: none; }
     }
 
@@ -95,7 +159,6 @@
       position: absolute;
       right: -12px;
       top: 8%;
-      font-family: var(--display);
       font-size: clamp(160px, 48vw, 210px);
       line-height: .75;
       letter-spacing: -.04em;
@@ -128,12 +191,11 @@
 
     .brandBlock .store {
       margin: 0;
-      font-family: var(--display);
-      font-size: clamp(52px, 14vw, 64px);
-      line-height: .88;
-      letter-spacing: .02em;
+      font-size: clamp(40px, 11vw, 48px);
+      line-height: 1.05;
+      font-weight: 900;
+      letter-spacing: .04em;
       text-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-      animation: brandRise .7s ease both;
     }
 
     .brandBlock .store span {
@@ -178,7 +240,6 @@
       border: 2px solid var(--ink);
       background: #fff;
       box-shadow: 8px 8px 0 rgba(208, 18, 45, .18);
-      animation: brandRise .75s ease .08s both;
     }
 
     .promoBoard .promoCol {
@@ -198,7 +259,6 @@
       font-size: 15px;
       line-height: 1.35;
       font-weight: 900;
-      font-style: italic;
       letter-spacing: .01em;
     }
 
@@ -207,7 +267,6 @@
       font-size: 15px;
       line-height: 1.35;
       font-weight: 900;
-      font-style: italic;
     }
 
     .promoBoard .promoCol small {
@@ -385,7 +444,7 @@
     .headerBrand .eyebrow {
       display: block;
       color: rgba(255, 255, 255, .62);
-      font-family: var(--display);
+      font-weight: 900;
       font-size: 14px;
       letter-spacing: .18em;
     }
@@ -432,11 +491,10 @@
 
     .eventBoard strong {
       display: block;
-      font-family: var(--display);
-      font-size: clamp(42px, 12vw, 56px);
-      line-height: .92;
-      letter-spacing: .02em;
-      font-weight: 400;
+      font-size: clamp(36px, 10vw, 46px);
+      line-height: 1.05;
+      letter-spacing: .04em;
+      font-weight: 900;
     }
 
     .eventBoard .period {
@@ -534,7 +592,7 @@
     }
 
     .scoreStage .unit {
-      font-family: var(--display);
+      font-weight: 900;
       font-size: 28px;
       letter-spacing: .04em;
       color: var(--red);
@@ -563,11 +621,11 @@
     }
 
     .entryBoard input {
+      font-weight: 900;
       border: 0;
       border-bottom: 2px solid var(--ink);
       background: transparent;
       color: var(--ink);
-      font-family: var(--display);
       font-size: 42px;
       letter-spacing: .04em;
       min-height: 72px;
@@ -627,6 +685,7 @@
     }
 
     .place {
+      font-weight: 900;
       display: grid;
       place-items: center;
       width: 34px;
@@ -634,7 +693,6 @@
       border-radius: 0;
       background: var(--board);
       color: #fff;
-      font-family: var(--display);
       font-size: 18px;
       letter-spacing: .02em;
     }
@@ -658,7 +716,7 @@
 
     .score {
       color: var(--red);
-      font-family: var(--display);
+      font-weight: 900;
       font-size: 24px;
       letter-spacing: .02em;
       white-space: nowrap;
@@ -763,14 +821,14 @@
     .progressText {
       margin-top: 10px;
       color: rgba(255, 255, 255, .85);
-      font-family: var(--display);
+      font-weight: 900;
       font-size: 18px;
       letter-spacing: .08em;
     }
 
     @media (max-width: 380px) {
       .authInner { padding: 22px 16px 18px; gap: 22px; }
-      .brandBlock .store { font-size: 48px; }
+      .brandBlock .store { font-size: 36px; }
       .eventBoard strong { font-size: 40px; }
       .entryBoard input { font-size: 36px; }
     }
@@ -778,9 +836,16 @@
 </head>
 <body>
   <main class="app">
+    <div class="bootOverlay" id="bootOverlay" aria-hidden="false">
+      <div class="bootMark">
+        <strong>JOYFIT24</strong>
+        <span>経堂</span>
+        <i aria-hidden="true"></i>
+      </div>
+    </div>
     <section class="view active" id="authView">
       <div class="authHero">
-        <div class="authInner">
+        <div class="authInner" id="authInner">
           <div class="brandBlock">
             <p class="anniversary">9th Anniversary Challenge</p>
             <p class="store">JOYFIT24<br><span>経堂</span></p>
@@ -1240,7 +1305,18 @@
       return String(value).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[s]));
     }
 
+    function playBootSequence() {
+      const overlay = document.getElementById("bootOverlay");
+      const authInner = document.getElementById("authInner");
+      window.setTimeout(() => {
+        overlay.classList.add("is-done");
+        overlay.setAttribute("aria-hidden", "true");
+        if (authInner) authInner.classList.add("is-ready");
+      }, 900);
+    }
+
     render();
+    playBootSequence();
     if (state.session) {
       loadData({ silent: true }).catch(() => {
         showMessage("entryMessage", "データ取得に失敗しました。通信状況を確認してください。", false);
