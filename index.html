@@ -275,7 +275,7 @@
     .shellHeader {
       position: relative;
       overflow: hidden;
-      padding: 18px 18px 16px;
+      padding: 14px 18px 12px;
       color: var(--ink);
       background: #fff;
       border-bottom: 1px solid var(--line);
@@ -328,10 +328,10 @@
     .headerUser {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 12px;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 10px;
+      padding-top: 8px;
       border-top: 1px solid var(--line);
       color: var(--mute);
       font-size: 12px;
@@ -340,10 +340,7 @@
     }
 
     .headerUser #accountName {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: var(--ink);
     }
@@ -470,22 +467,28 @@
     }
 
     .scoreTap {
-      display: flex;
+      display: flex !important;
+      flex-direction: row;
+      flex-wrap: nowrap;
       align-items: baseline;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
       cursor: text;
+      letter-spacing: 0;
     }
 
     .scoreTap #guideEvent {
-      font-size: 18px;
+      flex: none;
+      font-size: 16px;
       font-weight: 900;
       white-space: nowrap;
     }
 
     .scoreTap input[name="score"] {
-      width: 2.4em;
+      flex: none;
+      width: 2.2em;
+      min-width: 2.2em;
       min-height: 0;
       padding: 0;
       border: 0;
@@ -493,16 +496,16 @@
       border-radius: 0;
       background: transparent;
       color: var(--red);
-      font-size: 42px;
+      font-size: 36px;
       font-weight: 900;
-      letter-spacing: .04em;
+      letter-spacing: .02em;
       text-align: center;
       outline: none;
     }
 
     .scoreTap input[name="score"]::placeholder {
       color: rgba(18, 18, 18, .22);
-      font-size: 36px;
+      font-size: 32px;
     }
 
     .scoreTap input[name="score"]:focus {
@@ -512,7 +515,8 @@
     }
 
     .scoreTap #unitBadge {
-      font-size: 18px;
+      flex: none;
+      font-size: 16px;
       font-weight: 900;
       color: var(--ink);
       white-space: nowrap;
@@ -531,6 +535,14 @@
       font-size: 12px;
       font-weight: 700;
       letter-spacing: .08em;
+    }
+
+    .entryBoard label.scoreTap {
+      display: flex !important;
+      gap: 8px;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: 0;
     }
 
 
@@ -652,17 +664,19 @@
       display: none;
       place-items: center;
       padding: 22px;
-      background: rgba(255, 255, 255, .88);
+      background: #fff;
     }
 
     .loadingOverlay.show { display: grid; }
 
     .loadingPanel {
       width: min(100%, 240px);
-      padding: 28px 18px;
+      padding: 0;
       background: #fff;
       color: var(--ink);
       text-align: center;
+      border: 0;
+      box-shadow: none;
     }
 
     .loaderRing {
@@ -683,15 +697,8 @@
       display: block;
       font-size: 14px;
       font-weight: 700;
-      letter-spacing: .08em;
-      color: var(--mute);
-    }
-
-    .loadingPanel p,
-    .progressTrack,
-    .progressBar,
-    .progressText {
-      display: none;
+      letter-spacing: .06em;
+      color: var(--ink);
     }
 
     @media (max-width: 380px) {
@@ -701,7 +708,9 @@
       .promoBoard p { font-size: 13px; line-height: 1.5; }
       .loginBoard { gap: 10px; }
       .eventBoard strong { font-size: 40px; }
-      .scoreTap input[name="score"] { font-size: 36px; }
+      .scoreTap input[name="score"] { font-size: 32px; width: 2em; min-width: 2em; }
+      .scoreTap #guideEvent,
+      .scoreTap #unitBadge { font-size: 15px; }
     }
   </style>
 </head>
@@ -747,8 +756,7 @@
           <button class="logout" type="button" id="logoutButton">ログアウト</button>
         </div>
         <div class="headerUser">
-          <span id="accountName">ゲスト</span>
-          <span id="accountMeta">会員</span>
+          <span><span id="accountName">ゲスト</span>（<span id="accountMeta">会員</span>）</span>
         </div>
 
         <div class="eventBoard">
@@ -804,7 +812,7 @@
     <div class="loadingOverlay" id="loadingOverlay" aria-live="polite" aria-hidden="true">
       <div class="loadingPanel">
         <div class="loaderRing" aria-hidden="true"></div>
-        <strong id="loadingTitle">読み込み中</strong>
+        <strong id="loadingTitle">読み込み中です</strong>
       </div>
     </div>
   </main>
@@ -925,14 +933,19 @@
       const cleanPin = String(pin || "").trim();
       if (!cleanNickname) return { ok: false, message: "ニックネームを入力してください。" };
       if (!/^[0-9]{4}$/.test(cleanPin)) return { ok: false, message: "4桁パスワードを入力してください。" };
-      const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString();
+
+      const data = await api({ action: "login", nickname: cleanNickname, pin: cleanPin });
+      if (!data.ok || !data.session) {
+        return { ok: false, message: data.message || "ログインできませんでした。" };
+      }
+
       state.session = {
-        token: "local",
-        participantId: "",
-        nickname: cleanNickname,
+        token: data.session.token,
+        participantId: data.session.participantId || "",
+        nickname: data.session.nickname || cleanNickname,
         pin: cleanPin,
-        division: "member",
-        expiresAt: expires
+        division: data.session.division || "member",
+        expiresAt: data.session.expiresAt
       };
       localStorage.setItem("joyfitSession", JSON.stringify(state.session));
       return { ok: true, session: state.session };
@@ -1112,6 +1125,8 @@
 
     function setBusyLoading(active) {
       const overlay = document.getElementById("loadingOverlay");
+      const title = document.getElementById("loadingTitle");
+      if (title) title.textContent = "読み込み中です";
       if (active) {
         overlay.classList.add("show");
         overlay.setAttribute("aria-hidden", "false");
