@@ -1067,11 +1067,12 @@
       gasEndpoint: "https://script.google.com/macros/s/AKfycbwHCmikLDfBN25bLcEkaLP6RlGyuf7Z6B64hGB0BJGcLQjxwiysATZ6qSdAZNl5h0m1RQ/exec",
       gasProxy: "/api/gas",
       requestTimeoutMs: 60000,
-      testWeekOverride: 1
+      // 本番・スタッフレビューは日付で週を判定（固定したいときだけ 1〜4 を入れる）
+      testWeekOverride: null
     };
 
     const weeks = [
-      { week: 1, event: "握力測定", unit: "kg", start: "2026-08-03", end: "2026-08-09", higherIsBetter: true },
+      { week: 1, event: "握力測定", unit: "kg", start: "2026-07-20", end: "2026-08-09", higherIsBetter: true },
       { week: 2, event: "前屈", unit: "cm", start: "2026-08-10", end: "2026-08-16", higherIsBetter: true },
       { week: 3, event: "プランク", unit: "秒", start: "2026-08-17", end: "2026-08-23", higherIsBetter: true },
       { week: 4, event: "腕立て伏せ", unit: "回", start: "2026-08-24", end: "2026-08-30", higherIsBetter: true }
